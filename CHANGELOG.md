@@ -1,8 +1,11 @@
 # 版本紀錄
 
-版本資訊以 `app/build.gradle` 為準。本紀錄依實作階段整理；目前版本為 **0.3.0**。
+版本資訊以 `app/build.gradle` 為準。本紀錄依實作階段整理；目前測試發行版本為 **1.0.0-prerelease**（版本代碼 11），不是正式上線版本。
 
-## 未發版：音譜庫與背景播放
+## 1.0.0-prerelease：音譜庫與背景播放（Pre-release）
+
+- 新增 prerelease Build Type，啟用 R8 壓縮／最佳化／混淆與資源縮減，使用 Debug 金鑰簽署並關閉 debuggable。
+- `app-prerelease.apk` 以 GitHub Pre-release 方式發行，僅供測試，不是正式上線版本。
 
 - 新增音譜庫：多份匯入／錄製保存、選取播放、改名、刪除、上次選取還原及舊演奏移轉。
 - 新增共用播放管理、mediaPlayback 前景服務、播放通知、鎖屏媒體控制、音訊焦點與播放期間的 CPU 喚醒鎖。

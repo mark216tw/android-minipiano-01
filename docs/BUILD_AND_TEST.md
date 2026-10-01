@@ -45,6 +45,19 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 ## 4. 單元測試與 Lint
 
+### Pre-release 建置
+
+```powershell
+.\gradlew.bat assemblePrerelease lintPrerelease --console=plain
+adb install -r "app/build/outputs/apk/prerelease/app-prerelease.apk"
+```
+
+macOS／Linux 使用 `./gradlew assemblePrerelease lintPrerelease`。版本 `1.0.0-prerelease`（versionCode 11），Build Type 為 `prerelease`：R8 壓縮、最佳化及混淆、資源縮減、Debug 金鑰簽署、非 debuggable。此 APK 僅供 Pre-release 測試，不是正式上線版本。不同電腦的 Debug 金鑰可能不同，無法保證跨電腦建置可覆蓋安裝。
+
+R8 對照表位於 `app/build/outputs/mapping/prerelease/mapping.txt`，排查混淆後堆疊時需保存對應建置的對照表。APK 上傳 GitHub Release 資產，不提交至原始碼；建立發行時必須使用 `gh release create ... --prerelease`，標題與說明標示 Pre-release。
+
+### 回歸測試
+
 若 Gradle 本身使用 JDK 21：
 
 ```powershell

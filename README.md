@@ -2,7 +2,7 @@
 
 一款離線、多指操作的 Android 電子琴 APP，提供真實鋼琴採樣、演奏錄製、MusicXML 匯入／匯出與自動彈奏。介面以琴鍵提示呈現音樂，不顯示五線譜。
 
-![版本](https://img.shields.io/badge/版本-0.3.0-167C70)
+![版本](https://img.shields.io/badge/版本-1.0.0--prerelease-167C70)
 ![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84)
 ![專案授權](https://img.shields.io/badge/程式碼授權-MIT-blue)
 
@@ -12,7 +12,7 @@
 |---|---|
 | APP 名稱 | mini 鋼琴 |
 | 套件名稱 | `com.minipiano.app` |
-| 目前版本 | `0.3.0`，版本代碼 `10` |
+| 測試發行版本 | `1.0.0-prerelease`，版本代碼 `11`；Pre-release，非正式上線版本 |
 | 最低系統 | Android 8.0，API 26 |
 | 編譯／目標 SDK | API 36，Android 16 |
 | 開發技術 | Java 17、原生 Android View、AudioTrack |
@@ -67,6 +67,14 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
 產物為 `app/build/outputs/apk/debug/app-debug.apk`，不納入原始碼版本控制。完整環境、測試及發佈步驟請見 [建置與測試指南](docs/BUILD_AND_TEST.md)。
+
+### Pre-release 測試發行版
+
+```powershell
+.\gradlew.bat assemblePrerelease
+```
+
+產物為 `app/build/outputs/apk/prerelease/app-prerelease.apk`。`prerelease` Build Type 啟用 R8 程式碼壓縮、最佳化及混淆與資源縮減，關閉 debuggable，使用 Debug 金鑰簽署。版本為 `1.0.0-prerelease`，僅供測試，不是正式上線版本；APK 透過 GitHub **Pre-release** 提供下載。
 
 ## 文件索引
 
