@@ -1,0 +1,112 @@
+{
+  "sampleRate": 48000,
+  "velocity": 90,
+  "heldSeconds": 0.5,
+  "anchorMidi": [
+    24,
+    48,
+    72,
+    96,
+    108
+  ],
+  "dbProfiles": [
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "timbres": {
+    "Salamander": {
+      "bands": {
+        "low": {
+          "medianDifferenceDb": 0.0,
+          "p10DifferenceDb": 0.0,
+          "p90DifferenceDb": 0.0
+        },
+        "middle": {
+          "medianDifferenceDb": 0.0,
+          "p10DifferenceDb": 0.0,
+          "p90DifferenceDb": 0.0
+        },
+        "high": {
+          "medianDifferenceDb": 0.0,
+          "p10DifferenceDb": 0.0,
+          "p90DifferenceDb": 0.0
+        }
+      },
+      "phrase": {
+        "kWeightedDb": -20.325,
+        "rmsDbfs": -20.45,
+        "peak": 0.494062
+      },
+      "phrasePreLimiterPeak": 0.976526
+    },
+    "VSCO": {
+      "bands": {
+        "low": {
+          "medianDifferenceDb": -5.877,
+          "p10DifferenceDb": -7.466,
+          "p90DifferenceDb": -3.166
+        },
+        "middle": {
+          "medianDifferenceDb": -9.595,
+          "p10DifferenceDb": -15.096,
+          "p90DifferenceDb": -6.812
+        },
+        "high": {
+          "medianDifferenceDb": -11.176,
+          "p10DifferenceDb": -15.048,
+          "p90DifferenceDb": -6.995
+        }
+      },
+      "phrase": {
+        "kWeightedDb": -29.139,
+        "rmsDbfs": -29.108,
+        "peak": 0.197248
+      },
+      "phrasePreLimiterPeak": 0.245714
+    },
+    "Synthetic": {
+      "bands": {
+        "low": {
+          "medianDifferenceDb": -1.085,
+          "p10DifferenceDb": -5.69,
+          "p90DifferenceDb": 1.704
+        },
+        "middle": {
+          "medianDifferenceDb": 3.016,
+          "p10DifferenceDb": 1.045,
+          "p90DifferenceDb": 5.523
+        },
+        "high": {
+          "medianDifferenceDb": 11.829,
+          "p10DifferenceDb": 5.978,
+          "p90DifferenceDb": 17.464
+        }
+      },
+      "phrase": {
+        "kWeightedDb": -18.272,
+        "rmsDbfs": -18.199,
+        "peak": 0.452852
+      },
+      "phrasePreLimiterPeak": 0.82766
+    }
+  }
+}

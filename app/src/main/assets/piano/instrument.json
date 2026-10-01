@@ -1,0 +1,316 @@
+{
+  "name": "Salamander Grand Piano v3 — mini piano mobile edition",
+  "author": "Alexander Holm",
+  "upstreamMapping": "kinwie",
+  "license": "CC BY 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+  "source": "https://github.com/sfzinstruments/SalamanderGrandPiano",
+  "revision": "3382bf9496bba2486f5ab0de55a264d1dfc38404",
+  "sampleRate": 24000,
+  "channels": 2,
+  "velocityLayer": 10,
+  "gainApplied": 1.620850899822112,
+  "changes": "Selected velocity layer v10; used upstream onset offsets; anti-aliased resampling from 48 kHz to 24 kHz; common gain; tails shortened with 120 ms fade; PCM 16-bit WAV conversion. No loops or release/resonance layers.",
+  "samples": [
+    {
+      "file": "note_021.wav",
+      "rootMidi": 21,
+      "lowMidi": 21,
+      "highMidi": 22,
+      "frames": 288000,
+      "sourceFile": "A0v10.flac",
+      "sourceSha256": "7c3435ed202c64eec040070286b1cfc298e2f701ad4d54c0556e00c1c4ee53b0",
+      "sha256": "cff1abb69c3afa68b6cc68e4d778dc5722b63872f8a1ed58a0b6282dc8a90dd6"
+    },
+    {
+      "file": "note_024.wav",
+      "rootMidi": 24,
+      "lowMidi": 23,
+      "highMidi": 25,
+      "frames": 288000,
+      "sourceFile": "C1v10.flac",
+      "sourceSha256": "e9bdda4a74f28a47f135cd5f0f7aaae7d78390b82a4642e5201423ae2dabbc21",
+      "sha256": "95e02e7d0e89d01724e82280a4dc8833597a2c029bb47e51dfc7a3f788545b64"
+    },
+    {
+      "file": "note_027.wav",
+      "rootMidi": 27,
+      "lowMidi": 26,
+      "highMidi": 28,
+      "frames": 288000,
+      "sourceFile": "D#1v10.flac",
+      "sourceSha256": "30fe7f9277dcd7da565400dbc4e1fc60556d282d41b58f16f9b6fa400d58112e",
+      "sha256": "7101625e19c1a84dc009128cc4813fdaf1c2ce1102c163864136854f7f17d67c"
+    },
+    {
+      "file": "note_030.wav",
+      "rootMidi": 30,
+      "lowMidi": 29,
+      "highMidi": 31,
+      "frames": 288000,
+      "sourceFile": "F#1v10.flac",
+      "sourceSha256": "0a841936d69a25eb65104163f0b8a9056d8892db32c5a2aca39acb18ae6899d0",
+      "sha256": "f32074c23ccb01d639d5f8c760f75ed449fcbae639aeeee21c94ee60840975ce"
+    },
+    {
+      "file": "note_033.wav",
+      "rootMidi": 33,
+      "lowMidi": 32,
+      "highMidi": 34,
+      "frames": 288000,
+      "sourceFile": "A1v10.flac",
+      "sourceSha256": "e545108a593d3c8a54b83383e27b12033f6c036e9f9c15de92a1df3cf2a73eb2",
+      "sha256": "0fcc647004fa597167f54e371136391e37006a566bd0053fa1fd4de98c13c8c4"
+    },
+    {
+      "file": "note_036.wav",
+      "rootMidi": 36,
+      "lowMidi": 35,
+      "highMidi": 37,
+      "frames": 288000,
+      "sourceFile": "C2v10.flac",
+      "sourceSha256": "0e55ec6b4046552b7f00b19fb38fbe8aaf02d50f7f4badf9e7eb008ad0843e18",
+      "sha256": "28f6714c28c56645163947a235896736b8c70dcdaedc678b629ee2ae1bf68940"
+    },
+    {
+      "file": "note_039.wav",
+      "rootMidi": 39,
+      "lowMidi": 38,
+      "highMidi": 40,
+      "frames": 288000,
+      "sourceFile": "D#2v10.flac",
+      "sourceSha256": "7847ef2ab4bab2ae111e34390b843dc9f5875e1fb26a0d0df30ff916aa550152",
+      "sha256": "d0c4f0d271328ba7df7f6f940b3b4963d23c32c79c7ef5cbba2edd427506a4ed"
+    },
+    {
+      "file": "note_042.wav",
+      "rootMidi": 42,
+      "lowMidi": 41,
+      "highMidi": 43,
+      "frames": 288000,
+      "sourceFile": "F#2v10.flac",
+      "sourceSha256": "db7c995bf388612d88de97c98183e71860a8c13fb46b02b8b3770fa1f0349ca9",
+      "sha256": "9f1665e36b8ddd3faea357f2c1e65131d034e69069e21edebdca2ab8d7c3998c"
+    },
+    {
+      "file": "note_045.wav",
+      "rootMidi": 45,
+      "lowMidi": 44,
+      "highMidi": 46,
+      "frames": 288000,
+      "sourceFile": "A2v10.flac",
+      "sourceSha256": "206bccac2ad09b26a46198876692a892dad8d56021dcf2f6e348aa038db7028c",
+      "sha256": "9984df29e719ab40c2316e25703004987ef0ab9782f3b91310aec93fa62d5312"
+    },
+    {
+      "file": "note_048.wav",
+      "rootMidi": 48,
+      "lowMidi": 47,
+      "highMidi": 49,
+      "frames": 192000,
+      "sourceFile": "C3v10.flac",
+      "sourceSha256": "eb3ddb8e7df54f63d1f91c7fcc04c921623941d325df3ebeed291e1a6d82318c",
+      "sha256": "010bc130231014576029a7c4fed0500fc4b57d86cb9a3f385edf856fb42d1779"
+    },
+    {
+      "file": "note_051.wav",
+      "rootMidi": 51,
+      "lowMidi": 50,
+      "highMidi": 52,
+      "frames": 192000,
+      "sourceFile": "D#3v10.flac",
+      "sourceSha256": "6d932b081ecf89a9dd4bf84a74aab0945992c70b1ecff1880806b28829fbfd74",
+      "sha256": "63e33ad662710f5ed07890bfa44b38f4d632e1da4576b893fbd5a85499e1c33a"
+    },
+    {
+      "file": "note_054.wav",
+      "rootMidi": 54,
+      "lowMidi": 53,
+      "highMidi": 55,
+      "frames": 192000,
+      "sourceFile": "F#3v10.flac",
+      "sourceSha256": "fb05b33c7e8bf85f2cac42f8c75ab1530754dc771f00f15f57a9d86c05cbd13f",
+      "sha256": "2fe635af6f48ef4f121b8b4fe730401aac502b17a5ec0c7c7e5a9b92f5e1567c"
+    },
+    {
+      "file": "note_057.wav",
+      "rootMidi": 57,
+      "lowMidi": 56,
+      "highMidi": 58,
+      "frames": 192000,
+      "sourceFile": "A3v10.flac",
+      "sourceSha256": "78669b41c7fabb11aa073cc8f834197cb36689653d6671f441bb82b41fdb51ff",
+      "sha256": "4f5e8723896ebba12a6a4e409eb911a90d5746cdfcb99f0c3e8fcd495d0c70b3"
+    },
+    {
+      "file": "note_060.wav",
+      "rootMidi": 60,
+      "lowMidi": 59,
+      "highMidi": 61,
+      "frames": 192000,
+      "sourceFile": "C4v10.flac",
+      "sourceSha256": "0e9d6e945df79113cd8bd9e841aed5d4537989704e993bfbed7fa8839724244a",
+      "sha256": "1d1949ffa37ccfb635922f0ebfa0f7c428e6202ce662be1004e59be8a6edb8c2"
+    },
+    {
+      "file": "note_063.wav",
+      "rootMidi": 63,
+      "lowMidi": 62,
+      "highMidi": 64,
+      "frames": 192000,
+      "sourceFile": "D#4v10.flac",
+      "sourceSha256": "a00e4a1e6e2658e686e2eab60dff701fd539e75072ab3811cb3038d01192dc72",
+      "sha256": "57092e5b7cb7daba0402917c067cfa495315a497b0f91a73f7e367e55e4e2201"
+    },
+    {
+      "file": "note_066.wav",
+      "rootMidi": 66,
+      "lowMidi": 65,
+      "highMidi": 67,
+      "frames": 192000,
+      "sourceFile": "F#4v10.flac",
+      "sourceSha256": "a9912cc7b9cc3c6f4fae20eeb0d9570f21c164f9a69475dfdcd6f7290b159317",
+      "sha256": "a0830815ff60dac0c84cbf71e41376568f093d2bdb96d8551d261de106e8b158"
+    },
+    {
+      "file": "note_069.wav",
+      "rootMidi": 69,
+      "lowMidi": 68,
+      "highMidi": 70,
+      "frames": 192000,
+      "sourceFile": "A4v10.flac",
+      "sourceSha256": "9e2aa68c1495c007ee16e8ce5c97cb07ac7249fd4cc77ba759551971d9c01be0",
+      "sha256": "01e5da95391c3b314b4f1869051541438111282ce943b85092efc979bd8d86ec"
+    },
+    {
+      "file": "note_072.wav",
+      "rootMidi": 72,
+      "lowMidi": 71,
+      "highMidi": 73,
+      "frames": 192000,
+      "sourceFile": "C5v10.flac",
+      "sourceSha256": "89924ca36674fc1b3f7b99bf503be9f1644f093efa28cbbcedbc885866ec050e",
+      "sha256": "2683ea80ee8945a6b03c6c73de662b15aabfc785bfee79d5e801260895a75008"
+    },
+    {
+      "file": "note_075.wav",
+      "rootMidi": 75,
+      "lowMidi": 74,
+      "highMidi": 76,
+      "frames": 120000,
+      "sourceFile": "D#5v10.flac",
+      "sourceSha256": "f9b7d545e732b6601b0a0181440cb70bd14eadf37518d9063432b5ef2a9a10fe",
+      "sha256": "dc73ed34788b4c31b5c49e3c532b644f61710d24b01d87549e39d33b9d34c219"
+    },
+    {
+      "file": "note_078.wav",
+      "rootMidi": 78,
+      "lowMidi": 77,
+      "highMidi": 79,
+      "frames": 120000,
+      "sourceFile": "F#5v10.flac",
+      "sourceSha256": "fc02895d148b1c591ac927248e0363c085a46a1ca79524ca67cbbcaab29462e3",
+      "sha256": "d8d3f7aa7aadb4d2054870db4ac309840b95a09f83b178821aae5a3b98aafd68"
+    },
+    {
+      "file": "note_081.wav",
+      "rootMidi": 81,
+      "lowMidi": 80,
+      "highMidi": 82,
+      "frames": 120000,
+      "sourceFile": "A5v10.flac",
+      "sourceSha256": "b0a77c5be8aeff9d0e9f02d544833a78612527a8662dea839a3c4514840a0160",
+      "sha256": "93375c069245b087547cc195df18bfb6b163fe6f3bd23a8839d59ace96b3aa23"
+    },
+    {
+      "file": "note_084.wav",
+      "rootMidi": 84,
+      "lowMidi": 83,
+      "highMidi": 85,
+      "frames": 120000,
+      "sourceFile": "C6v10.flac",
+      "sourceSha256": "d675a759d036e83eb6727b0630ef99767a008d192952449772874d0756e61a96",
+      "sha256": "33c3c02fdd1e3697f3405192c95b22ec3fc1672991aa90911dd4bf3f6a5ceea4"
+    },
+    {
+      "file": "note_087.wav",
+      "rootMidi": 87,
+      "lowMidi": 86,
+      "highMidi": 88,
+      "frames": 120000,
+      "sourceFile": "D#6v10.flac",
+      "sourceSha256": "7a85145668f950ae6fe256d91de5beb0761af49beae874a09de1b4af3ef1b97c",
+      "sha256": "43c5bd83b4dfff5b87f5bd96105e8806b4ab9937ca10742be5a56eb4f04dbe93"
+    },
+    {
+      "file": "note_090.wav",
+      "rootMidi": 90,
+      "lowMidi": 89,
+      "highMidi": 91,
+      "frames": 120000,
+      "sourceFile": "F#6v10.flac",
+      "sourceSha256": "074eafc5b071e9cb32779d2ab710deac0b63851dc3455f7c4eb8452e0f2f6afd",
+      "sha256": "a1eae40c7d78b9be6528e6e29355c4ce77abadb9888cc2678413d8d2321d80e2"
+    },
+    {
+      "file": "note_093.wav",
+      "rootMidi": 93,
+      "lowMidi": 92,
+      "highMidi": 94,
+      "frames": 120000,
+      "sourceFile": "A6v10.flac",
+      "sourceSha256": "1cb95f5eed403218ed93e44f3167d681d58c7d31e879dc82c157c7ded42eb020",
+      "sha256": "ec8be06ebdd8fffbf762d07970082ebca2d2f2c3a2562cf8a21e38bd2caa50e7"
+    },
+    {
+      "file": "note_096.wav",
+      "rootMidi": 96,
+      "lowMidi": 95,
+      "highMidi": 97,
+      "frames": 108525,
+      "sourceFile": "C7v10.flac",
+      "sourceSha256": "1e2d3cc638f35982e895fb4c4f679c03d73533d1cba3cf33439cbf0b38250f11",
+      "sha256": "d3bf46408686feec49015bc94c83e0610bc392a7e30893ed3949d0d4075dd716"
+    },
+    {
+      "file": "note_099.wav",
+      "rootMidi": 99,
+      "lowMidi": 98,
+      "highMidi": 100,
+      "frames": 116374,
+      "sourceFile": "D#7v10.flac",
+      "sourceSha256": "0f4d971f44a6008a6de39e2d13ebe64a948df05869a67acf17df3276e855bee1",
+      "sha256": "f205ff104bc882ee78f2b6039b1c0d7768f00f88b0352440625923ce49e41287"
+    },
+    {
+      "file": "note_102.wav",
+      "rootMidi": 102,
+      "lowMidi": 101,
+      "highMidi": 103,
+      "frames": 113313,
+      "sourceFile": "F#7v10.flac",
+      "sourceSha256": "ecd0bf9110491bfdd2ae7a1a101890b51d626f05898ea9780468c145d7f8be45",
+      "sha256": "13f0b97bee31c035b207566a20cfaf87244d66463784fcc5862f25ed65208b4c"
+    },
+    {
+      "file": "note_105.wav",
+      "rootMidi": 105,
+      "lowMidi": 104,
+      "highMidi": 106,
+      "frames": 92345,
+      "sourceFile": "A7v10.flac",
+      "sourceSha256": "4dbf1e500f9c0ea6e88992cdf475b901462adb27e3ed37299d89f128b8b52194",
+      "sha256": "c9364477e6bf36ad5d147f1ea589c59eb49fc00a259a1bbe696a0b2f13e5cdbe"
+    },
+    {
+      "file": "note_108.wav",
+      "rootMidi": 108,
+      "lowMidi": 107,
+      "highMidi": 108,
+      "frames": 88856,
+      "sourceFile": "C8v10.flac",
+      "sourceSha256": "3907415dcf4efdbcc0c7b2ce1215a90a84dac9cd4b717f9b0f02609811a7c6e9",
+      "sha256": "df0b3314fded2e94867bcd798495fdf6b94c5c727c2dadc63234327c883a91e3"
+    }
+  ]
+}

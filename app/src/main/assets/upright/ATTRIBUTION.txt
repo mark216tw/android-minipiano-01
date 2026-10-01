@@ -1,0 +1,20 @@
+VSCO 2 Community Edition — Upright Piano, mini 鋼琴手機精簡版
+
+Original upright piano recordings: Simon Dalzell / Ivy Audio (Winter 2015–16).
+Redistributed by Versilian Studios LLC / Sam Gossner.
+Source: https://github.com/sgossner/VSCO-2-CE/tree/master/Keys/Upright%20Piano
+Project: https://github.com/sgossner/VSCO-2-CE
+License: CC0 1.0 Universal.
+https://creativecommons.org/publicdomain/zero/1.0/
+Full license: LICENSE.txt. Original notes: SOURCE_INFO.txt and SOURCE_README.txt.
+
+This mobile bank is derived from VSCO 2 CE Upright Piano samples.
+Changes: select dyn2/rr1 and 23 alternate sample indices; use the official
+MappingChart MIDI roots; trim leading silence with 2 ms pre-roll;
+anti-aliased resampling to 24 kHz stereo; common gain adjustment;
+10/7/4 second tail limits and 120 ms fade; 16-bit PCM WAV conversion.
+No sustain loops or extra release/noise layers are included.
+Exact source revision and source/output SHA-256 hashes: instrument.json.
+
+Credit to Simon Dalzell / Ivy Audio and Versilian Studios is retained.
+No endorsement by the original authors is implied.

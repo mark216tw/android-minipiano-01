@@ -1,0 +1,15 @@
+.gradle/
+**/build/
+local.properties
+.idea/
+*.iml
+.cxx/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.jks
+*.keystore
+.env
+.env.*
+!.env.example

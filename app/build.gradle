@@ -1,0 +1,33 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.minipiano.app'
+    compileSdk 36
+    defaultConfig {
+        applicationId 'com.minipiano.app'
+        minSdk 26
+        targetSdk 36
+        versionCode 10
+        versionName '0.3.0'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    testOptions { unitTests.includeAndroidResources = true }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.16.1'
+}
+
+tasks.withType(Test).configureEach {
+    maxHeapSize = '1024m'
+    if (project.hasProperty('testJavaHome')) {
+        executable = "${project.property('testJavaHome')}/bin/java${System.getProperty('os.name').startsWith('Windows') ? '.exe' : ''}"
+    }
+    if (project.hasProperty('attachmentTestFile')) {
+        systemProperty 'minipiano.attachmentTestFile', project.property('attachmentTestFile')
+    }
+}

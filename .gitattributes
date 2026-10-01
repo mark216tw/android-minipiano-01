@@ -1,0 +1,8 @@
+# 跨平台文字行尾；保留二進位音色與原始第三方說明。
+* text=auto eol=lf
+*.wav binary
+*.jar binary
+gradlew text eol=lf
+gradlew.bat text eol=crlf
+app/src/main/assets/upright/SOURCE_README.txt -text -whitespace
+app/src/main/assets/upright/SOURCE_INFO.txt -text

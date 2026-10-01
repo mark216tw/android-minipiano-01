@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<score-partwise version="4.0">
+  <work><work-title>範例 · 力度、變速、跳房子與雙聲部</work-title></work>
+  <part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list>
+  <part id="P1">
+    <measure number="1">
+      <attributes><divisions>1</divisions><time><beats>2</beats><beat-type>4</beat-type></time><staves>2</staves></attributes>
+      <barline location="left"><repeat direction="forward"/></barline>
+      <direction><sound tempo="90"/></direction>
+      <direction><direction-type><dynamics><p/></dynamics></direction-type><staff>1</staff></direction>
+      <direction><direction-type><wedge type="crescendo" number="1"/></direction-type><staff>1</staff></direction>
+      <note><pitch><step>C</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+      <note><pitch><step>E</step><octave>4</octave></pitch><duration>1</duration><voice>1</voice><type>quarter</type><staff>1</staff></note>
+      <backup><duration>2</duration></backup>
+      <note><pitch><step>C</step><octave>3</octave></pitch><duration>2</duration><voice>2</voice><type>half</type><staff>2</staff></note>
+    </measure>
+    <measure number="2">
+      <barline location="left"><ending type="start" number="1"/></barline>
+      <direction><direction-type><wedge type="stop" number="1"/></direction-type><staff>1</staff></direction>
+      <direction><direction-type><dynamics><f/></dynamics></direction-type><staff>1</staff></direction>
+      <direction><sound tempo="120"/></direction>
+      <note><pitch><step>G</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice><type>half</type><staff>1</staff></note>
+      <backup><duration>2</duration></backup>
+      <note><pitch><step>G</step><octave>2</octave></pitch><duration>2</duration><voice>2</voice><type>half</type><staff>2</staff></note>
+      <barline><ending type="stop" number="1"/><repeat direction="backward"/></barline>
+    </measure>
+    <measure number="3">
+      <barline location="left"><ending type="start" number="2"/></barline>
+      <direction><sound tempo="60"/></direction>
+      <direction><direction-type><words>ritard.</words></direction-type><staff>1</staff></direction>
+      <note><pitch><step>C</step><octave>5</octave></pitch><duration>2</duration><voice>1</voice><type>half</type><staff>1</staff></note>
+      <backup><duration>2</duration></backup>
+      <note><pitch><step>C</step><octave>3</octave></pitch><duration>2</duration><voice>2</voice><type>half</type><staff>2</staff></note>
+      <barline><ending type="stop" number="2"/><bar-style>light-heavy</bar-style></barline>
+    </measure>
+  </part>
+</score-partwise>
