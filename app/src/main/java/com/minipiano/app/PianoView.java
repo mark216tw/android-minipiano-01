@@ -20,7 +20,7 @@ final class PianoView extends View {
     private final PianoAudio audio;
     private final RectF pulseBounds = new RectF();
     private static final long ATTACK_FLASH_MS = 140;
-    private int base = 48, whites = 14;
+    private int base = 48, whites = 16;
     private int manualColor = 0xFF6CDFBE, whiteColor = 0xFFFFFDF5, blackColor = 0xFF22343C;
     void theme(UiTheme theme) { manualColor = theme.primary; whiteColor = theme.dark ? 0xFFD3DFDD : 0xFFFFFDF5; blackColor = theme.dark ? 0xFF101A22 : 0xFF22343C; invalidate(); }
     private static final int[] WHITE = {0, 2, 4, 5, 7, 9, 11};
@@ -34,8 +34,11 @@ final class PianoView extends View {
         setContentDescription("多指鋼琴鍵盤，可滑奏"); setFocusable(true);
     }
     int base() { return base; }
-    void octave(int direction) { releaseAll(); base = Math.max(24, Math.min(108 - whites / 7 * 12, base + direction * 12)); rebuild(); invalidate(); }
-    void width(int whiteCount) { releaseAll(); whites = whiteCount; base = Math.min(base, 108 - whites / 7 * 12); rebuild(); invalidate(); }
+    private int lastOffset() { return (whites - 1) / 7 * 12 + WHITE[(whites - 1) % 7]; }
+    int lastPitch() { return base + lastOffset(); }
+    private int maxBase() { return (107 - lastOffset()) / 12 * 12; }
+    void octave(int direction) { releaseAll(); base = Math.max(24, Math.min(maxBase(), base + direction * 12)); rebuild(); invalidate(); }
+    void width(int whiteCount) { releaseAll(); whites = whiteCount; base = Math.min(base, maxBase()); rebuild(); invalidate(); }
     void releaseAll() { for (int i = 0; i < fingers.size(); i++) listener.up(fingers.keyAt(i)); fingers.clear(); invalidate(); }
     @Override protected void onSizeChanged(int w, int h, int oldw, int oldh) { rebuild(); }
     private void rebuild() {

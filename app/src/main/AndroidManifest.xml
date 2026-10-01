@@ -11,7 +11,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".SettingsActivity" android:exported="false"
-            android:screenOrientation="sensorLandscape" android:configChanges="orientation|screenSize|keyboardHidden|uiMode"
+            android:screenOrientation="portrait" android:configChanges="orientation|screenSize|keyboardHidden|uiMode"
             android:windowSoftInputMode="adjustResize" />
     </application>
 </manifest>

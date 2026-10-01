@@ -152,7 +152,7 @@ public final class MainActivity extends Activity {
         button("音域 −", controls, () -> { piano.octave(-1); updateRange(); });
         range = label("C3 – B4  ", 12, 0xFF687D73); controls.addView(range);
         button("音域 ＋", controls, () -> { piano.octave(1); updateRange(); });
-        button("鍵寬", controls, () -> { widthIndex = (widthIndex + 1) % 3; piano.width(new int[]{7, 14, 21}[widthIndex]); updateRange(); });
+        button("鍵寬", controls, () -> { widthIndex = (widthIndex + 1) % 3; piano.width(new int[]{8, 16, 21}[widthIndex]); updateRange(); });
         pedal = button("延音：關", controls, () -> setPedal(!pedalDown));
         scrollRow(root, controls);
         detail = label("綠色：手動彈奏  ·  黃色：自動演奏  ·  多指和弦與滑奏", 11, 0xFF70847B);
@@ -161,11 +161,12 @@ public final class MainActivity extends Activity {
             public void down(int pointer, int pitch) { audio.on(pointer, pitch); recorder.on(pointer, pitch); }
             public void up(int pointer) { audio.off(pointer); recorder.off(pointer); }
         }, audio);
-        root.addView(piano, new LinearLayout.LayoutParams(-1, 0, 1)); setContentView(root);
+        root.addView(piano, new LinearLayout.LayoutParams(-1, 0, 1)); setContentView(root); updateRange();
     }
     private void updateRange() {
-        int octaves = new int[]{1, 2, 3}[widthIndex], octave = piano.base() / 12 - 1;
-        range.setText("C" + octave + " – B" + (octave + octaves - 1) + "  ");
+        int octave = piano.base() / 12 - 1, last = piano.lastPitch();
+        String[] names = {"C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"};
+        range.setText("C" + octave + " – " + names[last % 12] + (last / 12 - 1) + "  ");
     }
     private void setPedal(boolean down) { pedalDown = down; pedal.setText(down ? "✓ 延音：開" : "延音：關"); audio.pedal(down); recorder.pedal(down); styleButton(pedal); }
     private void setBusy(boolean value) { busy = value; updateEnabled(); }
