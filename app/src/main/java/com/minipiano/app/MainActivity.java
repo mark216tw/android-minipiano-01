@@ -35,8 +35,13 @@ public final class MainActivity extends Activity {
     private final ExecutorService files = Executors.newSingleThreadExecutor();
     private final Recorder recorder = new Recorder();
     private PianoAudio audio;
+    private PlaybackController playback;
     private PianoView piano;
-    private ScoreStorage storage;
+    private ScoreLibrary library;
+    private String currentId;
+    private Button libraryButton;
+    private boolean pendingLibraryPlay;
+    private static final int LIBRARY = 103;
     private Score score = new Score();
     private UiTheme theme;
     private LinearLayout mainRoot;
@@ -44,7 +49,8 @@ public final class MainActivity extends Activity {
     private TextView soundStatus;
     private String lastSoundStatus = "";
     private String lastScoreDetail = "";
-    private Button record, play, pedal, tempo, speedButton, importButton, exportButton;
+    private Button record, pedal, tempo, speedButton, importButton, exportButton;
+    private ImageButton play, stop;
     private Button voicesButton, summaryButton;
     private java.util.List<Score.Channel> channels = java.util.Collections.emptyList();
     private boolean exportOriginal;
@@ -59,8 +65,9 @@ public final class MainActivity extends Activity {
     private final Runnable refresh = new Runnable() {
         @Override public void run() {
             if (!resumed) return;
+            syncPlayback();
             if (!dragging && !score.notes.isEmpty()) progress.setProgress((int) (score.seconds((long) audio.position) * 1000 / Math.max(.001, durationSeconds)));
-            play.setText(audio.playing ? "Ⅱ 暫停" : "▶ 播放");
+            updatePlaybackButtons();
             time.setText(formatTime(score.seconds((long) audio.position) / speeds[speedIndex]) + " / " + formatTime(durationSeconds / speeds[speedIndex]));
             if (!recorder.active() && !counting && !score.notes.isEmpty()) {
                 Score.Measure measure = score.measureAt((long) audio.position);
@@ -81,14 +88,16 @@ public final class MainActivity extends Activity {
         theme = new UiTheme(this); setTheme(theme.dark ? R.style.AppTheme_Dark : R.style.AppTheme);
         super.onCreate(state);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        audio = new PianoAudio(this); storage = new ScoreStorage(this);
+        playback = PlaybackController.acquire(this); audio = playback.audio; library = new ScoreLibrary(this);
+        speedIndex = playback.speedIndex;
         var preferences = getPreferences(MODE_PRIVATE);
         bpm = preferences.getInt("bpm", 120); beats = preferences.getInt("beats", 4); beatType = preferences.getInt("beatType", 4);
         countIn = preferences.getBoolean("countIn", true); metro = preferences.getBoolean("metro", false);
         if (state != null) { exportStep = state.getInt("exportStep", 120); exportOriginal = state.getBoolean("exportOriginal", false); }
         createUi(); applyTheme(); setBusy(true);
+        if (playback.score != null) { currentId = playback.id; showScore(playback.score); setBusy(false); return; }
         files.execute(() -> {
-            try { Score saved = storage.load(); runOnUiThread(() -> { if (isDestroyed()) return; useScore(saved != null ? saved : Score.demo()); setBusy(false); }); }
+            try { library.migrate(); String id = library.selected(); Score saved = id == null ? null : library.load(id); runOnUiThread(() -> { if (isDestroyed()) return; currentId = id; useScore(saved != null ? saved : emptyScore()); setBusy(false); }); }
             catch (Exception e) { runOnUiThread(() -> { setBusy(false); message("無法還原演奏", e.getMessage()); }); }
         });
     }
@@ -118,6 +127,18 @@ public final class MainActivity extends Activity {
         HorizontalScrollView scroll = new HorizontalScrollView(this); scroll.setHorizontalScrollBarEnabled(false); scroll.addView(row);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, dp(50)); root.addView(scroll, params);
     }
+    private ImageButton playbackButton(LinearLayout parent, int icon, String description, Runnable action) {
+        ImageButton button = new ImageButton(this); button.setImageResource(icon); button.setContentDescription(description);
+        button.setPadding(dp(12), dp(10), dp(12), dp(10));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(48), dp(48)); params.setMargins(0, 0, dp(7), 0);
+        parent.addView(button, params); button.setOnClickListener(v -> action.run()); return button;
+    }
+    private void speedMenu() {
+        String[] labels = {"0.5×", "0.75×", "1×", "1.25×", "1.5×"};
+        dialog().setTitle("播放速度").setSingleChoiceItems(labels, speedIndex, (d, which) -> {
+            speedIndex = which; playback.speedIndex = which; audio.speed(speeds[which]); speedButton.setText("速度 " + labels[which]); d.dismiss();
+        }).setNegativeButton("取消", null).show();
+    }
     private void createUi() {
         LinearLayout root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setBackgroundColor(0xFFF2F9F5);
         mainRoot = root; UiTheme.insets(root, dp(10), true);
@@ -130,10 +151,11 @@ public final class MainActivity extends Activity {
         LinearLayout actions = row();
         importButton = button("↥ 匯入", actions, this::importScore);
         exportButton = button("↧ 匯出", actions, this::exportScore);
+        libraryButton = button("音譜庫", actions, this::openLibrary);
         record = button("● 錄製", actions, this::toggleRecord);
-        play = button("▶ 播放", actions, () -> { if (audio.playing) audio.pause(); else audio.play(); });
-        button("■ 停止", actions, this::stopEverything);
-        speedButton = button("速度 1×", actions, () -> { speedIndex = (speedIndex + 1) % speeds.length; audio.speed(speeds[speedIndex]); speedButton.setText("速度 " + speeds[speedIndex] + "×"); });
+        play = playbackButton(actions, R.drawable.ic_play, "播放", () -> { if (audio.playing) playback.pause(); else playback.play(); });
+        stop = playbackButton(actions, R.drawable.ic_stop, "停止", this::stopEverything);
+        speedButton = button("速度 " + new String[]{"0.5", "0.75", "1", "1.25", "1.5"}[speedIndex] + "×", actions, this::speedMenu);
         voicesButton = button("聲部", actions, this::voiceSettings); voicesButton.setTag("voiceControls");
         summaryButton = button("匯入摘要", actions, () -> message("匯入摘要", score.importSummary())); summaryButton.setTag("importSummary");
         scrollRow(root, actions);
@@ -152,7 +174,7 @@ public final class MainActivity extends Activity {
         button("音域 −", controls, () -> { piano.octave(-1); updateRange(); });
         range = label("C3 – B4  ", 12, 0xFF687D73); controls.addView(range);
         button("音域 ＋", controls, () -> { piano.octave(1); updateRange(); });
-        button("鍵寬", controls, () -> { widthIndex = (widthIndex + 1) % 3; piano.width(new int[]{8, 16, 21}[widthIndex]); updateRange(); });
+        button("鍵寬", controls, () -> { widthIndex = (widthIndex + 1) % 3; piano.width(new int[]{8, 16, 24}[widthIndex]); updateRange(); });
         pedal = button("延音：關", controls, () -> setPedal(!pedalDown));
         scrollRow(root, controls);
         detail = label("綠色：手動彈奏  ·  黃色：自動演奏  ·  多指和弦與滑奏", 11, 0xFF70847B);
@@ -173,14 +195,31 @@ public final class MainActivity extends Activity {
     private void updateEnabled() {
         boolean idle = !busy && !recorder.active() && !counting;
         importButton.setEnabled(idle); exportButton.setEnabled(idle && !score.notes.isEmpty());
-        play.setEnabled(idle && !score.notes.isEmpty()); speedButton.setEnabled(idle);
+        libraryButton.setEnabled(idle);
+        updatePlaybackButtons(); speedButton.setEnabled(idle);
         progress.setEnabled(idle && !score.notes.isEmpty()); record.setEnabled(!busy); tempo.setEnabled(idle);
         voicesButton.setEnabled(idle && !channels.isEmpty()); summaryButton.setEnabled(idle && score.originalXml != null);
     }
+    private void updatePlaybackButtons() {
+        boolean available = !busy && !recorder.active() && !counting && !score.notes.isEmpty();
+        play.setEnabled(available);
+        play.setImageResource(audio.playing ? R.drawable.ic_pause : R.drawable.ic_play);
+        play.setContentDescription(audio.playing ? "暫停" : "播放");
+        stop.setEnabled(!busy && (available || recorder.active() || counting));
+        play.setAlpha(play.isEnabled() ? 1f : .4f); stop.setAlpha(stop.isEnabled() ? 1f : .4f);
+    }
     private void useScore(Score value) {
-        score = value; scoreLength = value.length(); durationSeconds = score.seconds(scoreLength); channels = score.channels(); audio.load(value); title.setText(value.title); lastScoreDetail = "";
+        playback.load(currentId, value); showScore(value);
+    }
+    private void showScore(Score value) {
+        score = value; scoreLength = value.length(); durationSeconds = score.seconds(scoreLength); channels = score.channels(); title.setText(value.title); lastScoreDetail = "";
         detail.setText(value.notes.size() + " 個音符 · " + channels.size() + " 聲部 · " + value.timeline().size() + " 速度段 · " + value.beats + "/" + value.beatType);
         updateEnabled();
+    }
+    private void syncPlayback() {
+        if (playback.score == null) return;
+        if (score != playback.score) { currentId = playback.id; showScore(playback.score); }
+        else if (!title.getText().toString().equals(score.title)) title.setText(score.title);
     }
     private void voiceSettings() {
         String[] names = new String[channels.size()]; boolean[] audible = new boolean[channels.size()];
@@ -192,7 +231,7 @@ public final class MainActivity extends Activity {
     }
     private void toggleRecord() {
         if (recorder.active() || counting) { finishRecording(); return; }
-        if (!score.notes.isEmpty()) dialog().setTitle("開始新錄製？").setMessage("新錄製會取代目前曲目。若需要保留，請先匯出。").setPositiveButton("開始", (d, w) -> prepareRecording()).setNegativeButton("取消", null).show();
+        if (!score.notes.isEmpty()) dialog().setTitle("開始新錄製？").setMessage("完成後會新增至音譜庫，既有音譜會保留。").setPositiveButton("開始", (d, w) -> prepareRecording()).setNegativeButton("取消", null).show();
         else prepareRecording();
     }
     private void prepareRecording() {
@@ -215,13 +254,43 @@ public final class MainActivity extends Activity {
         piano.releaseAll(); setPedal(false);
         if (recorder.active()) {
             Score recorded = recorder.stop(); recorded.title = "我的演奏 " + new java.text.SimpleDateFormat("MM-dd HH:mm", Locale.TAIWAN).format(new java.util.Date());
-            useScore(recorded); save(recorded);
+            if (!recorded.notes.isEmpty()) addRecording(recorded);
+            else { useScore(score); toast("沒有錄到音符，未新增音譜"); }
         } else if (wasCounting) useScore(score);
         record.setText("● 錄製"); styleButton(record); updateEnabled();
     }
     private void stopEverything() { if (recorder.active() || counting) finishRecording(); audio.stop(); piano.releaseAll(); setPedal(false); }
     private void save(Score value) {
-        Score snapshot = value.copy(); files.execute(() -> { try { storage.save(snapshot); } catch (Exception e) { runOnUiThread(() -> toast("演奏儲存失敗：" + e.getMessage())); } });
+        String id = currentId; if (id == null) return;
+        Score snapshot = value.copy(); files.execute(() -> { try { library.update(id, snapshot); } catch (Exception e) { runOnUiThread(() -> toast("演奏儲存失敗：" + e.getMessage())); } });
+    }
+    private Score emptyScore() { Score value = new Score(); value.title = "尚未選取音譜"; return value; }
+    private void addRecording(Score recorded) {
+        setBusy(true);
+        files.execute(() -> {
+            try { String id = library.add(recorded.copy(), "錄製"); runOnUiThread(() -> { if (isDestroyed()) return; currentId = id; useScore(recorded); setBusy(false); toast("錄製已加入音譜庫"); }); }
+            catch (Exception e) { runOnUiThread(() -> { if (isDestroyed()) return; currentId = null; useScore(recorded); setBusy(false); message("錄製儲存失敗，請匯出保留", e.getMessage()); }); }
+        });
+    }
+    private void openLibrary() {
+        if (busy || recorder.active() || counting) return;
+        setBusy(true);
+        files.execute(() -> runOnUiThread(() -> {
+            if (isDestroyed()) return;
+            setBusy(false); startActivityForResult(new Intent(this, ScoreLibraryActivity.class), LIBRARY);
+        }));
+    }
+    private void reloadLibrary(boolean playNow) {
+        setBusy(true);
+        files.execute(() -> {
+            try { String id = library.selected(); Score selected = id == null ? emptyScore() : library.load(id);
+                runOnUiThread(() -> { if (isDestroyed()) return;
+                    if (playNow || !java.util.Objects.equals(id, playback.id)) { currentId = id; useScore(selected); }
+                    else if (playback.score != null) { playback.score.title = selected.title; syncPlayback(); }
+                    setBusy(false); if (playNow && !selected.notes.isEmpty()) { if (resumed) playback.play(); else pendingLibraryPlay = true; }
+                });
+            } catch (Exception e) { runOnUiThread(() -> { if (isDestroyed()) return; currentId = null; useScore(emptyScore()); setBusy(false); message("無法載入音譜", e.getMessage()); }); }
+        });
     }
     private void settings() {
         if (recorder.active() || counting) { toast("請先結束錄製"); return; }
@@ -276,14 +345,19 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
+        if (request == LIBRARY) {
+            if (result == RESULT_OK && data != null && data.getBooleanExtra("import", false)) { reloadLibrary(false); importScore(); }
+            else { String id = data == null ? null : data.getStringExtra("playId"); if (id != null) library.select(id); reloadLibrary(id != null); }
+            return;
+        }
         if (result != RESULT_OK || data == null || data.getData() == null) return;
         Uri uri = data.getData(); setBusy(true);
         if (request == IMPORT) {
             files.execute(() -> {
                 try (InputStream input = getContentResolver().openInputStream(uri)) {
                     if (input == null) throw new java.io.IOException("無法開啟檔案");
-                    Score imported = MusicXml.read(input); storage.save(imported);
-                    runOnUiThread(() -> { if (isDestroyed()) return; useScore(imported); setBusy(false); message("匯入摘要", imported.importSummary()); });
+                    Score imported = MusicXml.read(input); String id = library.add(imported, "匯入");
+                    runOnUiThread(() -> { if (isDestroyed()) return; currentId = id; useScore(imported); setBusy(false); message("匯入摘要", imported.importSummary()); });
                 } catch (Exception e) { runOnUiThread(() -> { setBusy(false); message("匯入失敗", e.getMessage()); }); }
             });
         } else if (request == EXPORT) {
@@ -291,7 +365,7 @@ public final class MainActivity extends Activity {
             files.execute(() -> {
                 try (OutputStream output = getContentResolver().openOutputStream(uri, "wt")) {
                     if (output == null) throw new java.io.IOException("無法寫入檔案");
-                    Score value = snapshot.notes.isEmpty() ? storage.load() : snapshot;
+                    Score value = snapshot;
                     if (value == null) throw new java.io.IOException("沒有可匯出的曲目");
                     if (original && value.originalXml == null) throw new java.io.IOException("沒有原始 MusicXML，請重新匯入");
                     output.write((original ? value.originalXml : MusicXml.write(value.quantized(step))).getBytes(StandardCharsets.UTF_8));
@@ -309,12 +383,13 @@ public final class MainActivity extends Activity {
         var preferences = UiTheme.preferences(this);
         bpm = preferences.getInt("bpm", 120); beats = preferences.getInt("beats", 4); beatType = preferences.getInt("beatType", 4);
         countIn = preferences.getBoolean("countIn", true); metro = preferences.getBoolean("metro", false); tempo.setText("錄製 " + bpm + " BPM");
-        audio.configure(this); applyTheme(); resumed = true; handler.post(refresh);
+        audio.configure(this); syncPlayback(); applyTheme(); resumed = true; handler.post(refresh);
+        if (pendingLibraryPlay) { pendingLibraryPlay = false; playback.play(); }
     }
     @Override protected void onPause() {
         resumed = false; handler.removeCallbacks(refresh); handler.removeCallbacks(beginRecording);
         if (recorder.active() || counting) finishRecording();
-        piano.releaseAll(); setPedal(false); audio.pause(); audio.silenceLive(); audio.metronome(false, bpm, beats); super.onPause();
+        piano.releaseAll(); setPedal(false); audio.silenceLive(); audio.metronome(false, bpm, beats); super.onPause();
     }
-    @Override protected void onDestroy() { handler.removeCallbacksAndMessages(null); audio.close(); files.shutdown(); super.onDestroy(); }
+    @Override protected void onDestroy() { handler.removeCallbacksAndMessages(null); playback.release(); files.shutdown(); super.onDestroy(); }
 }

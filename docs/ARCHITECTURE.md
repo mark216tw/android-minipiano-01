@@ -4,7 +4,10 @@
 
 ```mermaid
 flowchart TB
-    UI[MainActivity／SettingsActivity] --> PV[PianoView 多指鍵盤]
+    UI[MainActivity／SettingsActivity／ScoreLibraryActivity] --> PV[PianoView 多指鍵盤]
+    UI --> PC[PlaybackController 共用播放狀態]
+    PC --> SERVICE[PlaybackService 前景播放服務]
+    SERVICE --> MEDIA[MediaSession／通知／音訊焦點／WakeLock]
     UI --> TH[UiTheme／HueSlider]
     PV --> REC[Recorder]
     PV --> Q[音訊命令佇列]
@@ -32,6 +35,8 @@ Java 元件位於 `app/src/main/java/com/minipiano/app/`。
 |---|---|---|
 | 操作介面 | MainActivity | 彈奏、播放、錄製、檔案操作、聲部與摘要 |
 | 設定 | SettingsActivity | 外觀、音色、音量與錄製偏好 |
+| 音譜庫 | ScoreLibraryActivity、ScoreLibrary | 清單、播放、改名、刪除、摘要保存及舊資料移轉 |
+| 播放生命週期 | PlaybackController、PlaybackService | 共用曲目／引擎、背景服務、通知、媒體控制、音訊焦點與 CPU 喚醒鎖 |
 | 鍵盤 | PianoView | 黑鍵優先命中、多指追蹤、滑奏與動畫 |
 | 外觀 | UiTheme、HueSlider | 色彩角色、系統列、色相與無障礙操作 |
 | 音訊 | PianoAudio | 命令處理、64 發聲槽、混音與輸出 |
@@ -52,6 +57,7 @@ Java 元件位於 `app/src/main/java/com/minipiano/app/`。
 |---|---|---|
 | UI／主執行緒 | 觸控、畫面、錄製事件、設定及對話框 | 手指狀態、介面目前曲目、偏好 |
 | 主畫面檔案執行器 | 匯入、保存與匯出 | 解析中的曲目、保存快照 |
+| 音譜庫檔案執行器 | 清單、讀取、改名及刪除 | 音譜摘要；進入音譜庫前先排空主畫面保存佇列 |
 | 採樣載入執行器 | 載入單一音色包、PCM 解碼 | 載入代次、不可變銀行快取 |
 | 音訊優先執行緒 | 時間排程、發聲槽及混音 | playing、cursor、踏板、靜音、音符包絡 |
 
@@ -94,6 +100,10 @@ SampleBankStore 只公開一個所選銀行。每次切換增加載入代次，�
 載入完成前使用合成音色並顯示狀態，補償曲線依實際發聲音色套用。
 
 ## 7. 外部介面
+
+PlaybackController 使用 application Context 建立共用音訊引擎，持有曲目 ID、Score 與速度。MainActivity 釋放介面引用時，不會關閉播放服務持有的引擎。播放透過 mediaPlayback 前景服務取得音訊焦點；服務以 MediaSession 與通知提供控制，播放期間持有部分 CPU 喚醒鎖。沒有播放且沒有主畫面引用時，服務結束並釋放引擎。
+
+MainActivity.onPause() 只結束錄製、釋放手動琴鍵與節拍器，不暫停音譜播放。返回音譜庫時，只有換曲才重新載入，改名只更新標題。服務不使用 START_STICKY 自動重播，程序被終止後不承諾恢復播放。
 
 - 系統檔案選擇器：`ACTION_OPEN_DOCUMENT`／`ACTION_CREATE_DOCUMENT`。
 - 音訊輸出：AudioTrack 與 AudioManager 裝置取樣率／緩衝資訊。

@@ -8,7 +8,11 @@
 
 ## 2. 目前曲目保存檔
 
-檔案為 APP 私有空間的 `performance.json`，透過 AtomicFile 原子寫入。第 2 版欄位：
+每份音譜位於 APP 私有空間的 `scores/<id>.json`，透過 AtomicFile 原子寫入。`performance.json` 為舊版單份保存檔，首次使用音譜庫時移轉為固定 ID `legacy`，保留舊檔並記錄移轉完成。新音譜使用 UUID，改名不更換檔名。第 2 版欄位：
+
+每筆另有 `scores/<id>.meta`，也是 AtomicFile JSON，包含 `title`、`source`（匯入／錄製／既有音譜）、`created`、`updated`（毫秒時間戳）及 `seconds`（原速時長）。清單掃描摘要，完整音譜在播放時載入；損壞摘要保留為可刪除項目，不妨礙其他曲目。
+
+`scoreLibrary` SharedPreferences 保存 `selected`（上次選取 ID）及 `migrated`（移轉完成）。改名以摘要的 `title` 為準，載入時覆蓋曲目 JSON 的標題，不修改 `originalXml`。刪除目前曲目會清除 `selected`；重新匯入同一檔案會新增另一個 UUID。
 
 | 欄位 | 型別 | 說明 |
 |---|---|---|

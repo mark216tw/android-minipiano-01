@@ -52,7 +52,8 @@ public class MusicXmlStorageUiTest {
             View choice = dialog.getListView().getAdapter().getView(0, null, dialog.getListView());
             assertTrue(dialog.getListView().isItemChecked(0)); dialog.getListView().performItemClick(choice, 0, 0); dialog.dismiss();
             deadline = System.nanoTime() + 5_000_000_000L;
-            File saved = context.getFileStreamPath("performance.json");
+            ScoreLibrary library = new ScoreLibrary(context);
+            File saved = new File(context.getFilesDir(), "scores/" + library.selected() + ".json");
             while (System.nanoTime() < deadline) {
                 if (saved.exists() && !new File(saved + ".new").exists() && !new File(saved + ".bak").exists()) {
                     try { if (new org.json.JSONObject(new String(Files.readAllBytes(saved.toPath()), StandardCharsets.UTF_8)).getJSONArray("mutedVoices").length() == 1) break; }
@@ -60,7 +61,7 @@ public class MusicXmlStorageUiTest {
                 }
                 Thread.sleep(10);
             }
-            assertEquals(1, new ScoreStorage(context).load().mutedVoices.size());
+            assertEquals(1, library.load(library.selected()).mutedVoices.size());
             findButton(content, "↧ 匯出").performClick(); var export = ShadowAlertDialog.getLatestAlertDialog(); export.getListView().performItemClick(null, 0, 0);
             Intent request = Shadows.shadowOf(activity).getNextStartedActivity(); assertEquals(Intent.ACTION_CREATE_DOCUMENT, request.getAction());
             assertTrue(request.getStringExtra(Intent.EXTRA_TITLE).contains("_原譜"));

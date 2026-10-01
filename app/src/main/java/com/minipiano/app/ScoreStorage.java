@@ -12,6 +12,7 @@ final class ScoreStorage {
     private static final Object IO_LOCK = new Object();
     private final AtomicFile file;
     ScoreStorage(Context context) { file = new AtomicFile(new File(context.getFilesDir(), "performance.json")); }
+    ScoreStorage(File path) { file = new AtomicFile(path); }
     void save(Score score) throws Exception {
         synchronized (IO_LOCK) { saveLocked(score); }
     }

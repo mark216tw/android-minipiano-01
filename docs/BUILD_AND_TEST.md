@@ -67,7 +67,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 .\gradlew.bat testDebugUnitTest "-PtestJavaHome=C:/path/to/jdk-21" "-PattachmentTestFile=C:/path/to/little-song-in-canon-form-op-68-no-27.musicxml" --console=plain
 ```
 
-目前有 78 個案例。未提供附件時兩個案例略過，其餘照常執行；提供附件的完整回歸為 78／78。報告在：
+測試涵蓋既有音訊／MusicXML 功能，以及音譜庫保存、移轉、改名、刪除、背景服務控制、Activity 重建狀態與共用圖示按鈕。未提供附件時兩個案例略過，其餘照常執行。報告在：
 
 - `app/build/reports/tests/testDebugUnitTest/index.html`
 - `app/build/reports/lint-results-debug.html`
@@ -125,6 +125,9 @@ macOS／Linux 使用 `.venv/bin/python`。素材來源固定於腳本中的 Git 
 - 三音色切換、載入、音量與和弦聽感。
 - 音樂速度變化、跳轉、暫停恢復與聲部靜音。
 - 系統返回、背景／前景、檔案選擇器及主題。
+- 音譜庫及設定橫直向切換、Home、鎖屏播放不中斷；返回保留速度與位置。
+- 通知／鎖屏播放、暫停、停止、音訊焦點中斷及背景耗電。
+- 連續匯入／錄製、改名、刪除目前與其他曲目、舊資料移轉及 8／16／24 白鍵音域上限。
 - 長曲／大型檔案的解析時間與記憶體。
 
 框架測試不能量測觸控到喇叭的端到端延遲；應另以一致的實機方法記錄。
