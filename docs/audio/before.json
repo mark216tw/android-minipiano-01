@@ -1,0 +1,80 @@
+{
+  "sampleRate": 48000,
+  "velocity": 90,
+  "heldSeconds": 0.5,
+  "anchorMidi": [
+    24,
+    48,
+    72,
+    96,
+    108
+  ],
+  "dbProfiles": [
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "timbres": {
+    "Salamander": {
+      "bands": {
+        "low": {
+          "medianDifferenceDb": 0.0,
+          "p10DifferenceDb": 0.0,
+          "p90DifferenceDb": 0.0
+        },
+        "middle": {
+          "medianDifferenceDb": 0.0,
+          "p10DifferenceDb": 0.0,
+          "p90DifferenceDb": 0.0
+        },
+        "high": {
+          "medianDifferenceDb": 0.0,
+          "p10DifferenceDb": 0.0,
+          "p90DifferenceDb": 0.0
+        }
+      },
+      "phrase": {
+        "kWeightedDb": -19.942,
+        "rmsDbfs": -20.07,
+        "peak": 0.507042
+      },
+      "phrasePreLimiterPeak": 1.028572
+    },
+    "Synthetic": {
+      "bands": {
+        "low": {
+          "medianDifferenceDb": -1.08,
+          "p10DifferenceDb": -5.69,
+          "p90DifferenceDb": 1.694
+        },
+        "middle": {
+          "medianDifferenceDb": 2.998,
+          "p10DifferenceDb": 1.037,
+          "p90DifferenceDb": 5.487
+        },
+        "high": {
+          "medianDifferenceDb": 11.751,
+          "p10DifferenceDb": 5.942,
+          "p90DifferenceDb": 17.225
+        }
+      },
+      "phrase": {
+        "kWeightedDb": -17.916,
+        "rmsDbfs": -17.844,
+        "peak": 0.46568
+      },
+      "phrasePreLimiterPeak": 0.871537
+    }
+  }
+}
