@@ -7,7 +7,8 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Process;
 import android.os.SystemClock;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 /** Continuous stereo stream. All voice state belongs to the audio thread. */
@@ -15,7 +16,7 @@ final class PianoAudio implements AutoCloseable {
     private static final int VOICES = 64, TABLE_SIZE = 2048;
     private final float[] sine = new float[TABLE_SIZE];
     private final Voice[] voices = new Voice[VOICES];
-    private final ConcurrentLinkedQueue<Runnable> commands = new ConcurrentLinkedQueue<>();
+    private final LinkedBlockingQueue<Runnable> commands = new LinkedBlockingQueue<>();
     private final boolean[] sustain = new boolean[2];
     private final double[] increments = new double[128];
     private final Thread thread;
@@ -214,21 +215,43 @@ final class PianoAudio implements AutoCloseable {
     private double resumeGain(Voice voice) {
         double gain = Math.min(1, voice.resumeFade); if (gain < 1) voice.resumeFade += 1.0 / (rate * .003); return gain;
     }
+    private boolean active() {
+        if (playing || metronome) return true;
+        for (Voice v : voices) if (v.active) return true;
+        return false;
+    }
     private void render() {
         Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
         AudioTrack track = null;
+        boolean trackPlaying = false;
         try {
-            int minimum = AudioTrack.getMinBufferSize(rate, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_FLOAT);
-            if (minimum <= 0) throw new IllegalStateException("裝置不支援音訊串流");
-            track = new AudioTrack.Builder()
-                .setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
-                .setAudioFormat(new AudioFormat.Builder().setSampleRate(rate).setChannelMask(AudioFormat.CHANNEL_OUT_STEREO).setEncoding(AudioFormat.ENCODING_PCM_FLOAT).build())
-                .setBufferSizeInBytes(Math.max(minimum, frames * 8 * 2))
-                .setTransferMode(AudioTrack.MODE_STREAM).setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY).build();
-            track.setBufferSizeInFrames(Math.max(frames * 2, minimum / 8));
-            float[] buffer = new float[frames * 2]; track.play();
+            float[] buffer = null;
             while (running) {
                 Runnable command; while ((command = commands.poll()) != null) command.run();
+                if (!active()) {
+                    // Nothing to play: stop feeding the audio device and wait for the next command.
+                    if (track != null && trackPlaying) {
+                        try { track.pause(); track.flush(); } catch (IllegalStateException ignored) {}
+                        trackPlaying = false;
+                    }
+                    Runnable next;
+                    try { next = commands.poll(1, TimeUnit.SECONDS); }
+                    catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
+                    if (next != null) next.run();
+                    continue;
+                }
+                if (track == null) {
+                    int minimum = AudioTrack.getMinBufferSize(rate, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_FLOAT);
+                    if (minimum <= 0) throw new IllegalStateException("裝置不支援音訊串流");
+                    track = new AudioTrack.Builder()
+                        .setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
+                        .setAudioFormat(new AudioFormat.Builder().setSampleRate(rate).setChannelMask(AudioFormat.CHANNEL_OUT_STEREO).setEncoding(AudioFormat.ENCODING_PCM_FLOAT).build())
+                        .setBufferSizeInBytes(Math.max(minimum, frames * 8 * 2))
+                        .setTransferMode(AudioTrack.MODE_STREAM).setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY).build();
+                    track.setBufferSizeInFrames(Math.max(frames * 2, minimum / 8));
+                    buffer = new float[frames * 2];
+                }
+                if (!trackPlaying) { track.play(); trackPlaying = true; }
                 for (int sample = 0; sample < frames; sample++) {
                     if (playing) {
                         while (nextEvent < program.events.length && program.events[nextEvent].seconds <= clock.seconds()) dispatch(program.events[nextEvent++]);
@@ -281,6 +304,7 @@ final class PianoAudio implements AutoCloseable {
     }
     @Override public void close() {
         running = false;
+        commands.add(() -> { }); // Wake the render thread if it is idle.
         try { thread.join(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

@@ -21,7 +21,7 @@ public final class PlaybackService extends Service {
     static final String PLAY = "com.minipiano.PLAY", PAUSE = "com.minipiano.PAUSE", STOP = "com.minipiano.STOP";
     private static final String CHANNEL = "playback";
     private static final float[] SPEEDS = {.5f, .75f, 1f, 1.25f, 1.5f};
-    private static final long WAKE_LOCK_TIMEOUT_MS = 6L * 60 * 60 * 1000;
+    private static final long MAX_WAKE_LOCK_MS = 6L * 60 * 60 * 1000;
     private PlaybackController controller;
     private MediaSession session;
     private AudioManager manager;
@@ -37,15 +37,15 @@ public final class PlaybackService extends Service {
         @Override public void run() {
             if (controller == null) return;
             boolean playing = controller.audio.playing;
-            if (playing && !wakeLock.isHeld()) wakeLock.acquire(WAKE_LOCK_TIMEOUT_MS);
+            if (playing && !wakeLock.isHeld()) wakeLock.acquire(wakeLockMs());
             if (!playing && !requested) {
                 if (wakeLock.isHeld()) wakeLock.release();
                 abandonFocus();
             }
             if (playing) requested = false;
             update();
-            if (!playing && !requested && controller.clients == 0) { stopSelf(); return; }
-            handler.postDelayed(this, 500);
+            if (!playing && !requested && (!controller.uiVisible || controller.clients == 0)) { stopSelf(); return; }
+            handler.postDelayed(this, 1000);
         }
     };
     @Override public void onCreate() {
@@ -82,9 +82,15 @@ public final class PlaybackService extends Service {
         if (!hasFocus) hasFocus = manager.requestAudioFocus(focus) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
         if (!hasFocus) { controller.audio.error = "無法取得音訊焦點"; return; }
         if (controller.score == null || controller.score.notes.isEmpty()) { abandonFocus(); return; }
-        if (!wakeLock.isHeld()) wakeLock.acquire(WAKE_LOCK_TIMEOUT_MS);
+        if (!wakeLock.isHeld()) wakeLock.acquire(wakeLockMs());
         requested = true; controller.audio.play();
         handler.postDelayed(() -> { requested = false; }, 1000);
+    }
+    private long wakeLockMs() {
+        if (controller == null || controller.score == null) return 60_000;
+        // Allow for the slowest playback speed with some headroom.
+        long length = (long) (controller.score.seconds(controller.score.length()) * 2000);
+        return Math.max(60_000, Math.min(MAX_WAKE_LOCK_MS, length + 120_000));
     }
     private void abandonFocus() { if (hasFocus) { manager.abandonAudioFocusRequest(focus); hasFocus = false; } }
     private PendingIntent action(String action, int request) {
@@ -108,17 +114,24 @@ public final class PlaybackService extends Service {
         String title = score == null ? "mini 鋼琴" : score.title;
         long position = score == null ? 0 : (long) (score.seconds((long) controller.audio.position) * 1000);
         long second = position / 1000;
+        boolean scoreChanged = score != lastScore;
         boolean titleChanged = !title.equals(lastTitle);
-        if (score != lastScore || titleChanged) {
+        boolean playingChanged = playing != lastPlaying;
+        if (scoreChanged || titleChanged) {
             lastScore = score;
             if (score != null) session.setMetadata(new MediaMetadata.Builder().putString(MediaMetadata.METADATA_KEY_TITLE, score.title)
                 .putLong(MediaMetadata.METADATA_KEY_DURATION, (long) (score.seconds(score.length()) * 1000)).build());
         }
-        if (second == lastSecond && playing == lastPlaying && !titleChanged) return;
-        lastSecond = second; lastPlaying = playing; lastTitle = title;
-        session.setPlaybackState(new PlaybackState.Builder().setActions(PlaybackState.ACTION_PLAY | PlaybackState.ACTION_PAUSE | PlaybackState.ACTION_PLAY_PAUSE | PlaybackState.ACTION_STOP | PlaybackState.ACTION_SEEK_TO)
-            .setState(playing ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED, position, SPEEDS[controller.speedIndex]).build());
-        getSystemService(NotificationManager.class).notify(1, notification());
+        if (second != lastSecond || titleChanged || playingChanged) {
+            lastSecond = second;
+            session.setPlaybackState(new PlaybackState.Builder().setActions(PlaybackState.ACTION_PLAY | PlaybackState.ACTION_PAUSE | PlaybackState.ACTION_PLAY_PAUSE | PlaybackState.ACTION_STOP | PlaybackState.ACTION_SEEK_TO)
+                .setState(playing ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED, position, SPEEDS[controller.speedIndex]).build());
+        }
+        // Rebuilding the notification every second is unnecessary; only the title or play state is displayed.
+        if (scoreChanged || titleChanged || playingChanged) {
+            lastPlaying = playing; lastTitle = title;
+            getSystemService(NotificationManager.class).notify(1, notification());
+        }
     }
     @Override public void onDestroy() {
         handler.removeCallbacksAndMessages(null);

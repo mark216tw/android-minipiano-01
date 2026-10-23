@@ -1,6 +1,7 @@
 package com.minipiano.app;
 
 import android.content.Intent;
+import android.os.Looper;
 import android.view.View;
 import android.widget.ImageButton;
 import org.junit.Test;
@@ -11,6 +12,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import java.lang.reflect.Field;
+import java.time.Duration;
 import java.util.Queue;
 import static org.junit.Assert.*;
 
@@ -56,6 +58,36 @@ public class BackgroundPlaybackTest {
                 service.get().onStartCommand(new Intent().setAction(PlaybackService.PLAY), 0, 3); commands(playback.audio); assertTrue(playback.audio.playing);
                 service.get().onStartCommand(new Intent().setAction(PlaybackService.STOP), 0, 4); commands(playback.audio); assertEquals(0, playback.audio.position, 0);
                 playback.deleted("track"); commands(playback.audio); assertNull(playback.id); assertTrue(playback.score.notes.isEmpty());
+            } finally { service.destroy(); }
+        } finally { playback.serviceActive = false; playback.release(); }
+    }
+    @Test public void pausedServiceStopsWhenUiIsHidden() throws Exception {
+        PlaybackController playback = PlaybackController.acquire(RuntimeEnvironment.getApplication());
+        try {
+            playback.audio.close(); playback.load("track", Score.demo()); commands(playback.audio);
+            playback.uiVisible = false;
+            var service = Robolectric.buildService(PlaybackService.class).create();
+            try {
+                service.get().onStartCommand(new Intent().setAction(PlaybackService.PLAY), 0, 1); commands(playback.audio);
+                assertTrue(playback.audio.playing);
+                service.get().onStartCommand(new Intent().setAction(PlaybackService.PAUSE), 0, 2); commands(playback.audio);
+                assertFalse(playback.audio.playing);
+                Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2));
+                assertTrue(Shadows.shadowOf(service.get()).isStoppedBySelf());
+            } finally { service.destroy(); }
+        } finally { playback.serviceActive = false; playback.release(); }
+    }
+    @Test public void playingServiceKeepsRunningWhenUiIsHidden() throws Exception {
+        PlaybackController playback = PlaybackController.acquire(RuntimeEnvironment.getApplication());
+        try {
+            playback.audio.close(); playback.load("track", Score.demo()); commands(playback.audio);
+            playback.uiVisible = false;
+            var service = Robolectric.buildService(PlaybackService.class).create();
+            try {
+                service.get().onStartCommand(new Intent().setAction(PlaybackService.PLAY), 0, 1); commands(playback.audio);
+                Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2));
+                assertFalse(Shadows.shadowOf(service.get()).isStoppedBySelf());
+                assertTrue(playback.audio.playing);
             } finally { service.destroy(); }
         } finally { playback.serviceActive = false; playback.release(); }
     }

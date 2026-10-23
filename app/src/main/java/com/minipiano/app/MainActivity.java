@@ -59,8 +59,9 @@ public final class MainActivity extends Activity {
     private java.util.List<Score.Channel> channels = java.util.Collections.emptyList();
     private boolean exportOriginal;
     private SeekBar progress;
-    private boolean pedalDown, metro, countIn = true, counting, busy, dragging, resumed;
-    private int bpm = 120, beats = 4, beatType = 4, widthIndex = 1, speedIndex = 2;
+    private boolean pedalDown, metro, countIn = true, counting, busy, dragging, resumed, screenOn;
+    private static final int[] WIDTHS = {24, 16, 8};
+    private int bpm = 120, beats = 4, beatType = 4, widthIndex = 0, speedIndex = 2;
     private final double[] speeds = {.5, .75, 1, 1.25, 1.5};
     private int exportStep = 120;
     private long scoreLength;
@@ -69,6 +70,7 @@ public final class MainActivity extends Activity {
     private final Runnable refresh = new Runnable() {
         @Override public void run() {
             if (!resumed) return;
+            keepScreenOn(audio.playing);
             syncPlayback();
             if (!dragging && !score.notes.isEmpty()) progress.setProgress((int) (score.seconds((long) audio.position) * 1000 / Math.max(.001, durationSeconds)));
             updatePlaybackButtons();
@@ -87,13 +89,12 @@ public final class MainActivity extends Activity {
             if (!sound.equals(lastSoundStatus)) { soundStatus.setText("   " + sound); soundStatus.setContentDescription(sound); lastSoundStatus = sound; }
             if (audio.error != null) { String error = audio.error; audio.error = null; message("音訊無法啟動", error); }
             boolean animating = audio.playing || recorder.active() || counting;
-            handler.postDelayed(this, animating ? 33 : 200);
+            handler.postDelayed(this, animating ? 33 : 1000);
         }
     };
     @Override public void onCreate(Bundle state) {
         theme = new UiTheme(this); setTheme(theme.dark ? R.style.AppTheme_Dark : R.style.AppTheme);
         super.onCreate(state);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         playback = PlaybackController.acquire(this); audio = playback.audio; library = new ScoreLibrary(this);
         speedIndex = playback.speedIndex;
         var preferences = UiTheme.preferences(this);
@@ -327,16 +328,21 @@ public final class MainActivity extends Activity {
         button("音域 −", controls, () -> { piano.octave(-1); updateRange(); });
         range = label("C3 – B4  ", 12, 0xFF687D73); controls.addView(range);
         button("音域 ＋", controls, () -> { piano.octave(1); updateRange(); });
-        button("鍵寬", controls, () -> { widthIndex = (widthIndex + 1) % 3; piano.width(new int[]{8, 16, 24}[widthIndex]); updateRange(); });
+        button("鍵寬", controls, () -> { widthIndex = (widthIndex + 1) % WIDTHS.length; piano.width(WIDTHS[widthIndex]); updateRange(); });
         pedal = button("延音：關", controls, () -> setPedal(!pedalDown));
         scrollRow(root, controls);
         detail = label("綠色：手動彈奏  ·  黃色：自動演奏  ·  多指和弦與滑奏", 11, 0xFF70847B);
         root.addView(detail, new LinearLayout.LayoutParams(-1, dp(24)));
         piano = new PianoView(this, new PianoView.Listener() {
-            public void down(int pointer, int pitch) { audio.on(pointer, pitch); recorder.on(pointer, pitch); }
-            public void up(int pointer) { audio.off(pointer); recorder.off(pointer); }
+            public void down(int pointer, int pitch) { audio.on(pointer, pitch); recorder.on(pointer, pitch); flashPiano(); }
+            public void up(int pointer) { audio.off(pointer); recorder.off(pointer); flashPiano(); }
         }, audio);
+        piano.width(WIDTHS[widthIndex]);
         root.addView(piano, new LinearLayout.LayoutParams(-1, 0, 1)); setContentView(root); updateRange();
+    }
+    private void flashPiano() {
+        // The idle refresh is slow, so keep redrawing briefly for the key-attack flash.
+        piano.postInvalidateDelayed(70); piano.postInvalidateDelayed(180);
     }
     private void updateRange() {
         int octave = piano.base() / 12 - 1, last = piano.lastPitch();
@@ -546,6 +552,21 @@ public final class MainActivity extends Activity {
     private void toast(String text) { if (!isDestroyed()) Toast.makeText(this, text, Toast.LENGTH_LONG).show(); }
     private void message(String title, String text) { if (!isDestroyed()) dialog().setTitle(title).setMessage(text == null ? "請稍後再試" : text).setPositiveButton("知道了", null).show(); }
     @Override protected void onSaveInstanceState(Bundle state) { super.onSaveInstanceState(state); state.putInt("exportStep", exportStep); state.putBoolean("exportOriginal", exportOriginal); }
+    private void keepScreenOn(boolean on) {
+        if (screenOn == on) return;
+        screenOn = on;
+        if (on) getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+    @Override protected void onStart() {
+        super.onStart();
+        if (playback != null) playback.uiVisible = true;
+    }
+    @Override protected void onStop() {
+        if (playback != null) playback.uiVisible = false;
+        keepScreenOn(false);
+        super.onStop();
+    }
     @Override protected void onResume() {
         super.onResume();
         var preferences = UiTheme.preferences(this);
@@ -555,7 +576,7 @@ public final class MainActivity extends Activity {
         if (pendingLibraryPlay) { pendingLibraryPlay = false; playback.play(); }
     }
     @Override protected void onPause() {
-        resumed = false; handler.removeCallbacks(refresh); handler.removeCallbacks(beginRecording);
+        resumed = false; keepScreenOn(false); handler.removeCallbacks(refresh); handler.removeCallbacks(beginRecording);
         if (recorder.active() || counting) finishRecording();
         piano.releaseAll(); setPedal(false); audio.silenceLive(); audio.metronome(false, bpm, beats); super.onPause();
     }

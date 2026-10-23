@@ -13,6 +13,7 @@ final class PlaybackController {
     int speedIndex = 2;
     int clients;
     boolean serviceActive;
+    boolean uiVisible;
     private PlaybackController(Context context) { this.context = context.getApplicationContext(); audio = new PianoAudio(this.context); }
     static synchronized PlaybackController acquire(Context context) {
         if (instance == null) instance = new PlaybackController(context);

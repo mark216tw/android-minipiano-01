@@ -9,14 +9,18 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import java.lang.reflect.Field;
 import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {26, 29, 36})
 public class StartupTest {
-    @Test public void activityCanLaunchLayoutAndDrawKeyboard() {
+    @Test public void activityCanLaunchLayoutAndDrawKeyboard() throws Exception {
         try (var controller = Robolectric.buildActivity(MainActivity.class)) {
             MainActivity activity = controller.setup().get();
+            Field pianoField = MainActivity.class.getDeclaredField("piano"); pianoField.setAccessible(true);
+            Field whitesField = PianoView.class.getDeclaredField("whites"); whitesField.setAccessible(true);
+            assertEquals(24, whitesField.getInt(pianoField.get(activity)));
             activity.onWindowFocusChanged(true);
             if (android.os.Build.VERSION.SDK_INT >= 30) {
                 assertEquals(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE,

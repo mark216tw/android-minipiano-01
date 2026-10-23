@@ -2,7 +2,7 @@
 
 一款離線、多指操作的 Android 電子琴 APP，提供真實鋼琴採樣、演奏錄製、MusicXML 匯入／匯出與自動彈奏。介面以琴鍵提示呈現音樂，不顯示五線譜。
 
-![版本](https://img.shields.io/badge/版本-1.1.0--prerelease-167C70)
+![版本](https://img.shields.io/badge/版本-1.2.0--prerelease-167C70)
 ![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84)
 ![專案授權](https://img.shields.io/badge/程式碼授權-MIT-blue)
 
@@ -12,7 +12,7 @@
 |---|---|
 | APP 名稱 | mini 鋼琴 |
 | 套件名稱 | `com.minipiano.app` |
-| 測試發行版本 | `1.1.0-prerelease`，版本代碼 `12`；Pre-release，非正式上線版本 |
+| 測試發行版本 | `1.2.0-prerelease`，版本代碼 `13`；Pre-release，非正式上線版本 |
 | 最低系統 | Android 8.0，API 26 |
 | 編譯／目標 SDK | API 36，Android 16 |
 | 開發技術 | Java 17、原生 Android View、AudioTrack |
@@ -21,7 +21,7 @@
 
 ## 主要功能
 
-- **彈奏**：多指和弦、滑奏、音域切換、8／16／24 個白鍵的鍵寬（預設 16）、延音踏板。
+- **彈奏**：多指和弦、滑奏、音域切換、8／16／24 個白鍵的鍵寬（預設 24）、延音踏板。
 - **音色**：Salamander 大鋼琴、合成鋼琴；64 個發聲槽與獨立鋼琴音量。
 - **反應與音量**：持續運作的低延遲音訊串流、背景採樣載入、兩種音色響度補償。
 - **錄製**：音符與踏板事件、BPM、4/4／3/4／6/8 拍、錄製倒數與節拍器。
@@ -74,7 +74,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 .\gradlew.bat assemblePrerelease
 ```
 
-產物為 `app/build/outputs/apk/prerelease/app-prerelease.apk`。`prerelease` Build Type 啟用 R8 程式碼壓縮、最佳化及混淆與資源縮減，關閉 debuggable，使用 Debug 金鑰簽署。版本為 `1.1.0-prerelease`，僅供測試，不是正式上線版本；APK 透過 GitHub **Pre-release** 提供下載。
+產物為 `app/build/outputs/apk/prerelease/app-prerelease.apk`。`prerelease` Build Type 啟用 R8 程式碼壓縮、最佳化及混淆與資源縮減，關閉 debuggable，使用 Debug 金鑰簽署。版本為 `1.2.0-prerelease`，僅供測試，不是正式上線版本；APK 透過 GitHub **Pre-release** 提供下載。
 
 ## 文件索引
 

@@ -20,7 +20,7 @@ final class PianoView extends View {
     private final PianoAudio audio;
     private final RectF pulseBounds = new RectF();
     private static final long ATTACK_FLASH_MS = 140;
-    private int base = 48, whites = 16;
+    private int base = 48, whites = 24;
     private float density = 1f, scaledDensity = 1f;
     private int manualColor = 0xFF6CDFBE, whiteColor = 0xFFFFFDF5, blackColor = 0xFF22343C;
     void theme(UiTheme theme) { manualColor = theme.primary; whiteColor = theme.dark ? 0xFFD3DFDD : 0xFFFFFDF5; blackColor = theme.dark ? 0xFF101A22 : 0xFF22343C; invalidate(); }
