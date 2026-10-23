@@ -59,7 +59,9 @@ public final class PlaybackService extends Service {
         focus = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
             .setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
             .setOnAudioFocusChangeListener(change -> {
-                if (change < 0) { requested = false; controller.pause(); abandonFocus(); }
+                if (change == AudioManager.AUDIOFOCUS_GAIN) { controller.audio.duck(false); return; }
+                if (change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) { controller.audio.duck(true); return; }
+                requested = false; controller.audio.duck(false); controller.pause(); abandonFocus();
             }, handler).build();
         session = new MediaSession(this, "MiniPiano");
         session.setCallback(new MediaSession.Callback() {
@@ -81,6 +83,7 @@ public final class PlaybackService extends Service {
     private void beginPlay() {
         if (!hasFocus) hasFocus = manager.requestAudioFocus(focus) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
         if (!hasFocus) { controller.audio.error = "無法取得音訊焦點"; return; }
+        controller.audio.duck(false);
         if (controller.score == null || controller.score.notes.isEmpty()) { abandonFocus(); return; }
         if (!wakeLock.isHeld()) wakeLock.acquire(wakeLockMs());
         requested = true; controller.audio.play();

@@ -39,10 +39,11 @@ Java 元件位於 `app/src/main/java/com/minipiano/app/`。
 | 播放生命週期 | PlaybackController、PlaybackService | 共用曲目／引擎、背景服務、通知、媒體控制、音訊焦點與 CPU 喚醒鎖 |
 | 鍵盤 | PianoView | 黑鍵優先命中、多指追蹤、滑奏與動畫 |
 | 外觀 | UiTheme、HueSlider | 色彩角色、系統列、色相與無障礙操作 |
-| 音訊 | PianoAudio | 命令處理、64 發聲槽、混音與輸出 |
+| 音訊 | PianoAudio | 命令處理、72 發聲槽、混音、限幅與輸出 |
 | 音色 | PianoSound、SampleBankStore | 選擇／遷移、單包快取與取消過期載入 |
-| 採樣 | PianoSample、SampleBank、SampleVoice | WAV 解碼、音域映射、變調及衰減 |
-| 響度 | TimbreBalance | 音色／音高查表、主音量與限幅 |
+| 採樣 | PianoSample、SampleBank、SampleVoice | WAV 解碼、三層映射、Hermite 變調 |
+| 殘響 | Reverb | Freeverb 類立體聲殘響、乾／濕混合與尾巴生命週期 |
+| 響度 | TimbreBalance、Limiter | 合成曲線、主音量與 look-ahead 限幅 |
 | 錄製 | Recorder | 手指音符、單調時間與踏板事件 |
 | 曲目 | Score | 音符、聲部、速度、原譜及演奏小節 |
 | 匯入／匯出 | MusicXml、MusicXmlReader | 包裝處理、解析、原譜保存與演奏譜寫出 |

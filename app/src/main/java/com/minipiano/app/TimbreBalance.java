@@ -24,14 +24,9 @@ final class TimbreBalance {
     }
     static void prepare() { /* Initializes the lookup on the creating/UI thread. */ }
     static double gain(int sound, int pitch) { return GAINS[sound][Math.max(0, Math.min(127, pitch))]; }
+    static double strength(int velocity) { return Math.pow(Math.max(0, Math.min(127, velocity)) / 127.0, .85); }
     static double voiceLevel(int selectedSound, boolean sampled, int pitch, int velocity) {
         int actualSound = sampled ? selectedSound : PianoSound.SYNTHETIC;
-        double strength = Math.pow(Math.max(0, Math.min(127, velocity)) / 127.0, .85);
-        return strength * (sampled ? .5 : .16) * gain(actualSound, pitch);
-    }
-    static float output(double piano, double volume, double click) {
-        // The user's slider affects piano only; the click joins before the existing limiter.
-        double mix = piano * 1.5 * volume + click;
-        return (float) (mix / (1 + Math.abs(mix)));
+        return strength(velocity) * (sampled ? .5 : .16) * gain(actualSound, pitch);
     }
 }

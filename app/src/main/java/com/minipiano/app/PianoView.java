@@ -12,7 +12,7 @@ import android.view.View;
 import java.util.ArrayList;
 
 final class PianoView extends View {
-    interface Listener { void down(int pointer, int pitch); void up(int pointer); }
+    interface Listener { void down(int pointer, int pitch, int velocity); void up(int pointer); }
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final ArrayList<Key> keys = new ArrayList<>();
     private final SparseIntArray fingers = new SparseIntArray();
@@ -102,11 +102,15 @@ final class PianoView extends View {
         for (int i = keys.size() - 1; i >= 0; i--) if (keys.get(i).bounds.contains(x, y)) return keys.get(i).pitch;
         return -1;
     }
+    private int velocityAt(int pitch, float y) {
+        for (Key key : keys) if (key.pitch == pitch) return Velocity.fromPosition(key.bounds.top, key.bounds.bottom, y);
+        return 90;
+    }
     private void move(int id, float x, float y) {
         int pitch = hit(x, y), old = fingers.get(id, -1);
         if (old == pitch) return;
         if (old >= 0) { listener.up(id); fingers.delete(id); }
-        if (pitch >= 0) { fingers.put(id, pitch); listener.down(id, pitch); }
+        if (pitch >= 0) { fingers.put(id, pitch); listener.down(id, pitch, velocityAt(pitch, y)); }
     }
     @Override public boolean onTouchEvent(MotionEvent event) {
         int action = event.getActionMasked(), index = event.getActionIndex();

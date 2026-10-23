@@ -29,13 +29,4 @@ public class TimbreBalanceTest {
             for (int velocity : new int[]{10, 40, 80}) assertTrue(TimbreBalance.voiceLevel(PianoSound.SALAMANDER, true, pitch, velocity) > full * velocity / 127);
         }
     }
-    @Test public void mutedPianoDoesNotMuteMetronomeAndOutputStaysBounded() {
-        float clickOnly = TimbreBalance.output(0, 1, .12);
-        assertEquals(clickOnly, TimbreBalance.output(10, 0, .12), 0);
-        assertEquals(0, TimbreBalance.output(1, 0, 0), 0);
-        assertTrue(Math.abs(TimbreBalance.output(.2, .5, 0)) < Math.abs(TimbreBalance.output(.2, 1, 0)));
-        for (int i = -640; i <= 640; i++) {
-            float output = TimbreBalance.output(i / 10.0, 1, .12); assertTrue(Float.isFinite(output) && Math.abs(output) < 1);
-        }
-    }
 }

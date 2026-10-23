@@ -10,8 +10,8 @@ final class Recorder {
     private long origin;
     private boolean pedal;
     private static final class Held {
-        final int pitch; final long tick;
-        Held(int pitch, long tick) { this.pitch = pitch; this.tick = tick; }
+        final int pitch, velocity; final long tick;
+        Held(int pitch, int velocity, long tick) { this.pitch = pitch; this.velocity = velocity; this.tick = tick; }
     }
     boolean active() { return score != null; }
     void start(int bpm, int beats, int beatType) {
@@ -19,14 +19,14 @@ final class Recorder {
         origin = System.nanoTime(); held.clear(); pedal = false;
     }
     private long now() { return score.tick((System.nanoTime() - origin) / 1e9); }
-    void on(int id, int pitch) {
+    void on(int id, int pitch, int velocity) {
         if (!active()) return;
-        off(id); held.put(id, new Held(pitch, now()));
+        off(id); held.put(id, new Held(pitch, Math.max(1, Math.min(127, velocity)), now()));
     }
     void off(int id) {
         if (!active()) return;
         Held h = held.remove(id);
-        if (h != null) score.notes.add(new Score.Note(h.pitch, h.tick, now() - h.tick, 90));
+        if (h != null) score.notes.add(new Score.Note(h.pitch, h.tick, now() - h.tick, h.velocity));
     }
     void pedal(boolean down) {
         if (active() && pedal != down) { score.pedals.add(new Score.Pedal(now(), down)); pedal = down; }

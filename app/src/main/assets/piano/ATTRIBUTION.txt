@@ -9,10 +9,11 @@ License URL: https://creativecommons.org/licenses/by/3.0/
 Full license: LICENSE.txt in this directory.
 
 This mobile sound bank is derived from the above instrument.
-Changes: select v10 velocity layer, trim using upstream onset offsets,
-anti-aliased 48 kHz -> 24 kHz stereo resampling, common gain adjustment,
-shorten tails with a 120 ms fade, and convert to 16-bit PCM WAV.
-No original SFZ release/resonance/noise layers or sustain loops are included.
+Changes: select v3, v10 and v16 velocity layers; trim using upstream onset
+offsets; 32 kHz low/middle and 48 kHz high stereo resampling; common gain
+adjustment; per-key RMS calibration; shorten tails with a 120 ms fade; and
+convert to 16-bit PCM WAV. No release noises, pedal-action noises, sustain
+loops or sympathetic resonance layers are included.
 The exact source revision and source/output SHA-256 hashes are in instrument.json.
 
 These samples are distributed under CC BY 3.0. The original authors do not

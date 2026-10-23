@@ -12,7 +12,7 @@
 | 原始來源 | [sfzinstruments/SalamanderGrandPiano](https://github.com/sfzinstruments/SalamanderGrandPiano) |
 | 固定來源版本 | `3382bf9496bba2486f5ab0de55a264d1dfc38404` |
 
-本專案選取 v3（柔）與 v10（亮）兩個力度層、共 30 個音高，使用原 v10 起音偏移、抗混疊降採樣至 32 kHz 立體聲、共同增益調整、尾音裁切／淡出及 PCM16 WAV 轉換。衍生素材仍採 CC BY 3.0；不表示原作者為本 APP 背書。
+本專案選取 v3（柔）、v10（中）與 v16（亮）三個力度層、共 30 個音高，使用上游起音偏移、低／中音 32 kHz 與高音 48 kHz 立體聲、共同增益與逐鍵 RMS 校正、尾音裁切／淡出及 PCM16 WAV 轉換；未打包放鍵或踏板動作噪音。衍生素材仍採 CC BY 3.0；不表示原作者為本 APP 背書。
 
 - [完整授權](app/src/main/assets/piano/LICENSE.txt)
 - [作者與修改聲明](app/src/main/assets/piano/ATTRIBUTION.txt)

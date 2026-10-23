@@ -202,6 +202,27 @@ public final class MainActivity extends Activity {
             public void onStopTrackingTouch(SeekBar bar) {}
         });
         content.addView(volume, new LinearLayout.LayoutParams(-1, dp(48)));
+        boolean reverbOn = UiTheme.preferences(this).getBoolean("pianoReverb", false);
+        int reverbMix = Math.max(0, Math.min(60, UiTheme.preferences(this).getInt("pianoReverbMix", 18)));
+        final SeekBar[] reverbBar = new SeekBar[1];
+        CheckBox reverb = recordingCheck(content, "空間殘響（預設關閉）", reverbOn, enabled -> {
+            UiTheme.preferences(MainActivity.this).edit().putBoolean("pianoReverb", enabled).apply();
+            if (reverbBar[0] != null) reverbBar[0].setEnabled(enabled);
+            audio.configure(MainActivity.this);
+        });
+        reverb.setTag("pianoReverb");
+        TextView reverbLabel = label("殘響量 " + reverbMix + "%", 14, theme.text); content.addView(reverbLabel);
+        SeekBar reverbAmount = new SeekBar(this); reverbBar[0] = reverbAmount; reverbAmount.setTag("pianoReverbMix"); reverbAmount.setMax(60); reverbAmount.setProgress(reverbMix);
+        reverbAmount.setEnabled(reverbOn);
+        reverbAmount.setThumbTintList(ColorStateList.valueOf(theme.primary)); reverbAmount.setProgressTintList(ColorStateList.valueOf(theme.primary)); reverbAmount.setProgressBackgroundTintList(ColorStateList.valueOf(theme.surface));
+        reverbAmount.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar bar, int value, boolean user) {
+                if (user) { UiTheme.preferences(MainActivity.this).edit().putInt("pianoReverbMix", value).apply(); reverbLabel.setText("殘響量 " + value + "%"); audio.configure(MainActivity.this); }
+            }
+            public void onStartTrackingTouch(SeekBar bar) {}
+            public void onStopTrackingTouch(SeekBar bar) {}
+        });
+        content.addView(reverbAmount, new LinearLayout.LayoutParams(-1, dp(40)));
         Button credits = dialogButton(content, "音色來源與授權", false, () -> showCredits(false)); credits.setTag("soundCredits");
         volumeLabel.setText("鋼琴音量 " + volume.getProgress() + "%");
         for (int j = 0; j < 2; j++) selectionStyle(buttons[j], PianoSound.name(PianoSound.SELECTABLE[j]), selected == PianoSound.SELECTABLE[j]);
@@ -334,7 +355,7 @@ public final class MainActivity extends Activity {
         detail = label("綠色：手動彈奏  ·  黃色：自動演奏  ·  多指和弦與滑奏", 11, 0xFF70847B);
         root.addView(detail, new LinearLayout.LayoutParams(-1, dp(24)));
         piano = new PianoView(this, new PianoView.Listener() {
-            public void down(int pointer, int pitch) { audio.on(pointer, pitch); recorder.on(pointer, pitch); flashPiano(); }
+            public void down(int pointer, int pitch, int velocity) { audio.on(pointer, pitch, velocity); recorder.on(pointer, pitch, velocity); flashPiano(); }
             public void up(int pointer) { audio.off(pointer); recorder.off(pointer); flashPiano(); }
         }, audio);
         piano.width(WIDTHS[widthIndex]);

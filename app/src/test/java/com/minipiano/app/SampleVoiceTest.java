@@ -56,4 +56,14 @@ public class SampleVoiceTest {
         for (int i = 0; i < 200; i++) { quiet.next(); strong.next(); }
         assertEquals(strong.left, quiet.left, .15);
     }
+
+    @Test public void monoSampleAddsToBothChannelsWithoutOverwritingStereo() {
+        short[] stereo = new short[200 * 2], mono = new short[200];
+        for (int i = 0; i < 200; i++) { stereo[i * 2] = 26000; stereo[i * 2 + 1] = 13000; mono[i] = 20000; }
+        SampleVoice voice = new SampleVoice();
+        voice.start(new PianoSample(69, 24000, 2, stereo), new PianoSample(69, 24000, 1, mono), .5, 1, 1, 69, 24000);
+        for (int i = 0; i < 100; i++) voice.next();
+        assertEquals(.7, voice.left, .01);
+        assertEquals(.5, voice.right, .01);
+    }
 }

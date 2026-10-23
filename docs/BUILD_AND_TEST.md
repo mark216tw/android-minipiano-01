@@ -94,11 +94,13 @@ R8 對照表位於 `app/build/outputs/mapping/prerelease/mapping.txt`，排查�
 | AdvancedMusicXmlTest | 16 |
 | WrappedMusicXmlTest | 8，其中 2 個外部附件 |
 | MusicXmlStorageUiTest | 6 |
-| PianoSampleTest／SampleVoiceTest | 2／6 |
-| SampleBankTest／SampleBankStoreTest | 4／2 |
+| PianoSampleTest／SampleVoiceTest | 2／7 |
+| SampleBankTest／SampleBankStoreTest／SampleBankLogicTest | 2／1／1 |
+| VelocityTest／RecorderTest | 2／2 |
+| LimiterTest／ReverbTest／DamperTest | 4／3／2 |
 | StartupTest | 3 |
 | ThemeSettingsTest | 14 |
-| TimbreBalanceTest | 4 |
+| TimbreBalanceTest | 3 |
 
 部分 Android 框架測試在 API 26／36 各執行一次，啟動測試涵蓋 API 26／29／36。
 
@@ -114,7 +116,7 @@ python tools/verify_piano_apk.py
 git diff --check
 ```
 
-APK 檢查驗證 Salamander 音色、88 鍵覆蓋、60 個採樣雜湊、作者及完整授權，並輸出實際容量。
+APK 檢查驗證 Salamander 音色、88 鍵覆蓋、90 個音符採樣的雜湊、三力度層、作者及完整授權，並輸出 WAV 與解碼後容量。
 
 ## 6. 音色重建與響度量測
 
@@ -128,7 +130,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe tools/measure_piano_loudness.py --calibrate --report docs/audio/calibrated.json
 ```
 
-macOS／Linux 使用 `.venv/bin/python`。素材來源固定於腳本中的 Git revision；快取原檔不需提交。重建會更新 APP assets 的 WAV／對照表，量測檔對應 `TimbreBalance` 的補償值。
+macOS／Linux 使用 `.venv/bin/python`。素材來源固定於腳本中的 Git revision；快取原檔不需提交。重建會更新 APP assets 的三層 WAV 與對照表；解碼後 PCM 需維持在 64 MiB 上限內。WAV 由 `PianoSample` 直接讀取，不經過 MediaCodec。
 
 ## 7. 真機驗收
 

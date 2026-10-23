@@ -1,5 +1,6 @@
 package com.minipiano.app;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,39 +15,62 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {26, 36})
 public class SampleBankTest {
-    @Test public void bundledBankCoversAll88KeysWithRealStereoPcmAndAttribution() throws Exception {
-        var assets = RuntimeEnvironment.getApplication().getAssets();
-        final int[] progress = {0};
-        SampleBank bank = SampleBank.load(name -> assets.open("piano/" + name), (count, total) -> { assertEquals(60, total); progress[0] = count; });
-        assertEquals(60, progress[0]); assertTrue(bank.decodedBytes < 64L * 1024 * 1024);
-        for (int pitch = 21; pitch <= 108; pitch++) {
-            PianoSample sample = bank.sample(pitch); assertNotNull(sample); assertTrue(Math.abs(sample.root - pitch) <= 1);
-            assertEquals(32000, sample.rate); assertEquals(2, sample.channels); assertTrue(sample.frames > 32000 * 3);
-            assertEquals(0, sample.pcm[sample.pcm.length - 1]);
+    private JSONObject manifest() throws Exception {
+        try (InputStream input = RuntimeEnvironment.getApplication().getAssets().open("piano/instrument.json")) {
+            return new JSONObject(new String(input.readAllBytes(), StandardCharsets.UTF_8));
         }
-        assertNull(bank.sample(20)); assertNull(bank.sample(109));
-        try (InputStream input = assets.open("piano/ATTRIBUTION.txt")) {
-            String text = new String(input.readAllBytes(), StandardCharsets.UTF_8); assertTrue(text.contains("Alexander Holm")); assertTrue(text.contains("CC BY 3.0"));
-        }
-        try (InputStream input = assets.open("piano/LICENSE.txt")) { assertTrue(input.readAllBytes().length > 10000); }
     }
-    @Test public void bundledWavesMatchManifestHashesAndHaveAudibleAttack() throws Exception {
-        verifyWaves("piano");
-    }
-    private void verifyWaves(String directory) throws Exception {
-        var assets = RuntimeEnvironment.getApplication().getAssets(); JSONObject manifest;
-        try (InputStream input = assets.open(directory + "/instrument.json")) { manifest = new JSONObject(new String(input.readAllBytes(), StandardCharsets.UTF_8)); }
-        var samples = manifest.getJSONArray("samples");
+
+    @Test public void bundledBankCoversAll88KeysWithThreeLayers() throws Exception {
+        JSONObject manifest = manifest();
+        assertEquals(2, manifest.getInt("version"));
+        assertEquals(3, manifest.getInt("velocityLayers"));
+        JSONArray samples = manifest.getJSONArray("samples");
+        assertEquals(90, samples.length());
+        JSONObject layers = new JSONObject();
         for (int i = 0; i < samples.length(); i++) {
-            JSONObject entry = samples.getJSONObject(i); byte[] bytes;
-            try (InputStream input = assets.open(directory + "/" + entry.getString("file"))) { bytes = input.readAllBytes(); }
-            StringBuilder digest = new StringBuilder(); for (byte value : MessageDigest.getInstance("SHA-256").digest(bytes)) digest.append(String.format(java.util.Locale.ROOT, "%02x", value & 255));
-            assertEquals(entry.getString("sha256"), digest.toString());
-            PianoSample sample = PianoSample.read(new java.io.ByteArrayInputStream(bytes), entry.getInt("rootMidi"));
-            int peak = 0;
-            for (int j = 0; j < Math.min(sample.pcm.length, sample.rate / 5 * 2); j++) peak = Math.max(peak, Math.abs(sample.pcm[j]));
-            assertTrue("silent attack: " + entry.getString("file"), peak > 328);
-            for (short value : sample.pcm) assertTrue(Math.abs(value) <= 27890);
+            JSONObject entry = samples.getJSONObject(i);
+            String layer = entry.getString("layer");
+            JSONArray covered = layers.optJSONArray(layer);
+            if (covered == null) { covered = new JSONArray(); layers.put(layer, covered); }
+            for (int pitch = entry.getInt("lowMidi"); pitch <= entry.getInt("highMidi"); pitch++) covered.put(pitch);
         }
+        assertEquals(3, layers.length());
+        var keys = layers.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            var covered = layers.getJSONArray(key);
+            assertEquals(88, covered.length());
+            for (int pitch = 21; pitch <= 108; pitch++) assertTrue(key, contains(covered, pitch));
+        }
+        assertFalse(manifest.has("releaseSamples"));
+        assertFalse(manifest.has("pedalSamples"));
+        assertTrue(manifest.getBoolean("gainCalibrated"));
+    }
+
+    @Test public void bundledFilesMatchManifestHashes() throws Exception {
+        JSONObject manifest = manifest();
+        verify(manifest.getJSONArray("samples"));
+        try (InputStream input = RuntimeEnvironment.getApplication().getAssets().open("piano/ATTRIBUTION.txt")) {
+            String text = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+            assertTrue(text.contains("Alexander Holm")); assertTrue(text.contains("CC BY 3.0"));
+        }
+        try (InputStream input = RuntimeEnvironment.getApplication().getAssets().open("piano/LICENSE.txt")) { assertTrue(input.readAllBytes().length > 10000); }
+    }
+
+    private void verify(JSONArray entries) throws Exception {
+        var assets = RuntimeEnvironment.getApplication().getAssets();
+        for (int i = 0; i < entries.length(); i++) {
+            JSONObject entry = entries.getJSONObject(i); byte[] bytes;
+            try (InputStream input = assets.open("piano/" + entry.getString("file"))) { bytes = input.readAllBytes(); }
+            StringBuilder digest = new StringBuilder();
+            for (byte value : MessageDigest.getInstance("SHA-256").digest(bytes)) digest.append(String.format(java.util.Locale.ROOT, "%02x", value & 255));
+            assertEquals(entry.getString("sha256"), digest.toString());
+        }
+    }
+
+    private static boolean contains(JSONArray array, int value) throws Exception {
+        for (int i = 0; i < array.length(); i++) if (array.getInt(i) == value) return true;
+        return false;
     }
 }

@@ -94,22 +94,24 @@ PianoSound 提供 Salamander 與合成兩款音色；舊 `sampledPiano` 布林�
 
 ## 4. 音色包對照表
 
-Salamander 銀行的 `instrument.json` 位於 `assets/piano/`，包括作者、授權、固定來源版本、取樣率、聲道、力度層數與交叉淡化速度、修改說明與採樣清單。合成音色沒有素材包。
+Salamander 銀行的 `instrument.json` 位於 `assets/piano/`，包括作者、授權、固定來源版本、預設取樣率、聲道、力度層定義、逐鍵校正增益、修改說明與採樣清單。合成音色沒有素材包。
 
 單個採樣的主要欄位：
 
 | 欄位 | 說明 |
 |---|---|
-| `file` | `note_NNN_soft.wav`／`note_NNN_loud.wav` |
-| `layer` | `soft` 或 `loud`；對應力度層 |
+| `file` | `note_NNN_soft.wav`、`note_NNN_medium.wav` 或 `note_NNN_loud.wav` |
+| `layer` | `soft`、`medium` 或 `loud`；對應力度層 |
 | `rootMidi` | 素材基準音高 |
 | `lowMidi`／`highMidi` | 適用音域，含端點 |
+| `rate`／`channels` | 該素材的取樣率與聲道數 |
 | `frames` | PCM 框數 |
+| `gain` | 逐鍵／逐層 RMS 校正增益 |
 | `sourceFile` | 原始素材名稱 |
 | `sourceSha256` | 原檔雜湊 |
 | `sha256` | 手機素材雜湊 |
 
-銀行層級另有 `sampleRate`、`channels`、`velocityLayers` 與 `velocityCrossfade`（柔／亮交叉淡化的兩個 MIDI 力度值）。每個力度層的音域不重疊且覆蓋 88 鍵，銀行解碼時會驗證格式、長度與兩層設定。
+銀行層級另有 `version`、`sampleRate`、`channels`、`velocityLayers`、`layers`（名稱與力度範圍）與 `gainCalibrated`。每個力度層的音域不重疊且覆蓋 88 鍵，銀行解碼時會驗證格式、長度、取樣率、聲道與層設定。目前不打包 `releaseSamples` 或 `pedalSamples`。
 
 ## 5. MusicXML 輸入包裝
 

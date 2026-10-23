@@ -10,6 +10,9 @@ android {
         versionCode 13
         versionName '1.2.0'
     }
+    androidResources {
+        noCompress += ['flac']
+    }
     buildTypes {
         prerelease {
             initWith release
@@ -31,6 +34,7 @@ android {
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20240303'
     testImplementation 'org.robolectric:robolectric:4.16.1'
 }
 
